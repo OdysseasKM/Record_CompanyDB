@@ -35,7 +35,7 @@ def add_artist(name, country):
     db.commit()
 
     
-def add_release(action, art_name, name, option, Format, duration=100, writer_ssn="11", cost=10, Fname="", Lname=""):
+def add_release(art_name, name, option, Format, duration=100, writer_ssn="11", cost=10, Fname="", Lname="", studio_id=0):
 
     date = datetime.today()
     sql="""SELECT MAX(release_id)
@@ -60,7 +60,7 @@ def add_release(action, art_name, name, option, Format, duration=100, writer_ssn
     elif option == "Video":
         add_video(max_id, duration)
     elif option == "Single":
-        add_song(max_id, None, writer_ssn, duration, None)
+        add_song(max_id, None, writer_ssn, duration, None, studio_id)
         if check_writer(writer_ssn)==0:
             add_writer(writer_ssn, Fname, Lname)
 
@@ -89,11 +89,11 @@ def add_video(idn, duration):
     VALUES(?, ?);"""
     cursor.execute(sql,(idn, duration))
 
-def add_song(idn, album_id, writer_ssn, duration, video_id):
+def add_song(idn, album_id, writer_ssn, duration, video_id, studio_id):
 
     sql="""INSERT INTO SONG
-    VALUES(?, ?, ?, ?, ?);"""
-    cursor.execute(sql,(idn, album_id, writer_ssn, duration, video_id))
+    VALUES(?, ?, ?, ?, ?, ?);"""
+    cursor.execute(sql,(idn, album_id, writer_ssn, duration, video_id, studio_id))
 
 def add_format(rel_id):
     
@@ -166,4 +166,25 @@ def annual_revenue(year):
     total_revenue = cd_profit + vinyl_profit
     return total_revenue
 
+def artist_profit(name):
+
+    sql="""SELECT SUM(VINYL.cost)+SUM(CD.cost) AS ESODA
+    FROM ARTIST JOIN RELEASE ON ARTIST.id=artist_id JOIN FORMAT ON release_id=rel_id JOIN VINYL ON format_id=VINYL.id JOIN CD ON format_id=CD.id
+    WHERE ARTIST.nickname=?
+    GROUP BY ARTIST.nickname
+    ORDER BY ESODA;"""
+    print(cursor.execute(sql,(name,)))
     
+def studios():
+    
+    sql="""SELECT STUDIO.id, SUM(SONG.song_id) AS recordings
+    FROM STUDIO JOIN SONG ON id=studio_id
+    GROUP BY STUDIO.id
+    ORDER BY recordings;"""
+    print(cursor.execute(sql))
+
+def delete_release(idn):
+
+    sql="""DELETE FROM RELEASE
+    WHERE release_id=?;"""
+    cursor.execute(sql,(idn,))
