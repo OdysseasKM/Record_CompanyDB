@@ -123,13 +123,14 @@ def querie4():
                 where r.release_id = s.song_id AND
                 s.song_id = g.rel_id and 
                 rate.rel_id = g.rel_id and 
-                g.name = ?  
+                g.name = ? and 
+				r.release_id != ? 
                 group by r.release_id 
                 order by avg_stars DESC
                 LIMIT (5);"""
-    cursor.execute(sql,(genre,))
-    result = cursor.fetchall()
-    print(result)
+        cursor.execute(sql,(genre,song_id))
+        result = cursor.fetchall()
+        print(result)
 
 # 4. Artist (ή Writer) με το καλύτερο μέσο όρο rating στα releases.
 def querie5():

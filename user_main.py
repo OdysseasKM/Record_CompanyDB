@@ -4,7 +4,7 @@ import user_functions
 def menu():
     print( """
     Press 1 to see 10 most viewed video clips.
-    Press 2 to see most popular songs of specific genre.
+    Press 2 to see most popular videos of specific genre.
     Press 3 to see videos from an artist.
     Press 4 to see relative songs with a song.
     Press 5 to see artist with best avg rating. 
