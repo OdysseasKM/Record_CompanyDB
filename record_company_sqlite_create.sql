@@ -59,7 +59,7 @@ CREATE TABLE IF NOT EXISTS SONG
     writer_ssn varchar,
     duration time,
     video_id integer ,
-    studio_id integer NOT NULL,
+    studio_id integer ,
     PRIMARY KEY (song_id),
     FOREIGN KEY (video_id)
     REFERENCES VIDEO(video_id)
@@ -143,11 +143,10 @@ DROP TABLE IF EXISTS FORMAT;
 CREATE TABLE IF NOT EXISTS FORMAT
 (	
 	format_id integer NOT NULL,
-	rel_id integer NOT NULL,
-	PRIMARY KEY(format_id)
-	FOREIGN KEY (rel_id)
-	REFERENCES RELEASE(release_id)
-    ON DELETE CASCADE
+	PRIMARY KEY (format_id)
+	-- FOREIGN KEY (rel_id)
+	-- REFERENCES RELEASE(release_id)
+    -- ON DELETE CASCADE
 );
 
 DROP TABLE IF EXISTS VINYL;

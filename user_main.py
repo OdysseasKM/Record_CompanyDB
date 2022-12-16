@@ -2,11 +2,15 @@ import user_functions
 
 
 def menu():
-    print( """Press 1 to see 10 most viewed video clips.
-     Press 2 to see most popular songs of specific genre.
-     Press 3 to see top artist by raitings.
-     Press -1 to exit.""")
-    choice = int(input())
+    print( """
+    Press 1 to see 10 most viewed video clips.
+    Press 2 to see most popular songs of specific genre.
+    Press 3 to see videos from an artist.
+    Press 4 to see relative songs with a song.
+    Press 5 to see artist with best avg rating. 
+    Press -1 to exit.
+    """)
+    choice = int(input("type a number : "))
     return choice
 
 def main():
@@ -16,7 +20,9 @@ def main():
         choice = menu()
         if choice == 1: user_functions.querie1()
         elif choice == 2: user_functions.querie2()
-        elif choice == 3: user_functions.queries3()
+        elif choice == 3: user_functions.querie3()
+        elif choice == 4: user_functions.querie4()
+        elif choice == 5: user_functions.querie5()
         elif choice == -1: break
 
 if __name__ == '__main__':
