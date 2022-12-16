@@ -31,11 +31,12 @@ def create_artist_ids():
             
 def artist_data():
     ids = []
+
     exists = False
     for rowNum in range (2,sheet.max_row):
         #find artist id from each comumn
         artist_id = sheet.cell(row=rowNum, column=4).value
-        
+
         #check if id has already added in file
         for i in range(1,len(ids)+1):
             # check first from the end of the pinax
@@ -66,6 +67,8 @@ def release_data():
                 VALUES(?, ?, ?, ?);"""
         cursor.execute(sql,(artist_id, release_id, today, release_title))
         db.commit()
+
+        
 
 def main():
     create_artist_ids()
