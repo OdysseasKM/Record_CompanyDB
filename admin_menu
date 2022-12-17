@@ -1,0 +1,245 @@
+import PySimpleGUI as sg
+import admin_functions as adm
+import sqlite3
+import datetime
+
+def starting_window():
+
+    add_list = ["Insert", ["Artist", "Release", "Studio"]]
+    delete_list = ["Delete", ["Artist", "Release"]]
+    inspect_list = ["Inspect", ["Artist", "Release", "Studio", "Writer"]]
+
+    layout =    [
+                    [sg.ButtonMenu("Insert", menu_def=add_list , size=(20,4))],
+                    [sg.ButtonMenu("Delete", menu_def=delete_list , size=(20,4))],
+                    [sg.ButtonMenu("Inspect", menu_def=inspect_list , size=(20,4))],
+                    [sg.Button("Annual Revenue", size=(20,4))],
+                    [sg.Button("Studios With the most recordings",  size=(20,4))],
+                    [sg.Cancel(button_color="red")]
+                ]
+    window	=	sg.Window("Data	Entry Form", layout, size=(500,500))
+    event, values=window.read()	
+
+    if event == "Cancel":
+        window.close()
+
+    elif event == 0:
+ 
+        if values[0] == "Artist":
+            add_artist_window()
+            
+        elif values[0] == "Release":
+            add_release_window()
+
+        elif values[0] == "Studio":
+            add_studio_window()
+
+    elif event == 1:
+        idn = delete_window()
+        adm.delete_release(idn)
+
+    elif event==2:
+
+        if values[3] == "Artist":
+            adm.find_all("Artist")
+            
+        elif values[3] == "Release":
+           adm.find_all("Release")
+
+        elif values[3] == "Studio":
+            adm.find_all("Studio")
+
+        elif values[3] == "Writer":
+            adm.find_all("Writer")
+
+    elif event == 3:
+        year=year_window()
+        adm.annual_revenue(year)
+    window.close()
+        
+
+def add_artist_window():
+
+    layout =    [
+                    [sg.Text('Please Enter the following information', font=("Courier",18))],[sg.VPush()],
+                    [sg.Text('Artist Nickname',	size=(15,1),font=("Courier",18)), sg.InputText(font=("Courier",	18))], [sg.VPush()],	
+                    [sg.Text('Artist Country',size=(15,1),font=("Courier",18)), sg.InputText(font=("Courier",18))], [sg.VPush()],
+                    [sg.Submit(key="-SUMBIT-",font=("Courier",18))],[sg.VPush()],
+                    [sg.Cancel(button_color="red")]
+                ]
+    window = sg.Window("Add Artist Window", layout, modal=True)
+    event, values = window.read()
+
+    if event == "Cancel":
+        window.close()	
+    if	event	==	"-SUMBIT-":
+        adm.add_artist(values[0], values[1])
+    window.close()
+
+def add_studio_window():
+
+    layout =    [
+                    [sg.Text('Please Enter the following information', font=("Courier",18))],[sg.VPush()],
+                    [sg.Text('Street Name',size=(15,1),font=("Courier",18)), sg.InputText(font=("Courier",18))], [sg.VPush()],
+                    [sg.Text('Number',size=(15,1),font=("Courier",18)), sg.InputText(font=("Courier",18))], [sg.VPush()],
+                    [sg.Text('Town',size=(15,1),font=("Courier",18)), sg.InputText(font=("Courier",18))], [sg.VPush()],
+                    [sg.Text('Country',size=(15,1),font=("Courier",18)), sg.InputText(font=("Courier",18))], [sg.VPush()],
+                    [sg.Submit(key="-SUMBIT-",font=("Courier",18))],[sg.VPush()],
+                    [sg.Cancel(button_color="red")]
+                ]
+    window = sg.Window("Add Artist Window", layout, modal=True)
+    event,values = window.read()	
+
+    if event == "Cancel":
+        window.close()
+    if	event	==	"-SUMBIT-":
+        adm.add_studio(values[0], values[1], values[2], values[3])
+    window.close()
+
+def add_release_window():
+
+    layout =    [
+                    [sg.Text('Please Enter the following information', font=("Courier",18))],[sg.VPush()],
+                    [sg.Text('Artist Nickname',size=(15,1),font=("Courier",18)), sg.InputText(font=("Courier",18))], [sg.VPush()],
+                    [sg.Text('Release Name',size=(15,1),font=("Courier",18)), sg.InputText(font=("Courier",18))], [sg.VPush()],
+                    [sg.Text('Please Choose the Release Type', font=("Courier",18))],[sg.VPush()],
+                    [sg.CB("Album", key="Album")],
+                    [sg.CB("Video", key="Video")],
+                    [sg.CB("Single", key="Single")],
+                    [sg.Text('Please Choose the Format', font=("Courier",18))],[sg.VPush()],
+                    [sg.CB("Vinyl", key="Vinyl")],
+                    [sg.CB("CD", key="CD")],
+                    [sg.CB("Online", key="Online")],
+                    [sg.Submit(key="-SUMBIT-",font=("Courier",18))],[sg.VPush()],
+                    [sg.Cancel(button_color="red")]
+                ]
+    window = sg.Window("Add Release Window", layout, modal=True)
+    event, values = window.read()	
+    print(values)
+    if values["Album"]==True:
+        print("album")
+        if values["Vinyl"]==True:
+            values[2]=price_window()
+            adm.add_release(values[0], values[1], "Album", "Vinyl", cost=values[2])
+        elif values["CD"]==True:
+            values[2]=price_window()
+            adm.add_release(values[0], values[1], "Album", "CD", cost=values[2])
+        elif values["Online"]==True:
+            adm.add_release(values[0], values[1], "Album", "Online")
+
+    elif values["Video"]==True:
+        values[2]=duration_window()
+        adm.add_release(values[0], values[1], "Video", "Online", duration=values[2])
+
+    elif values["Single"]==True:
+        values[2], values[3], values[4], values[5], values[6] = single_window()
+        if values["Vinyl"]==True:
+            values[7]=price_window()
+            adm.add_release(values[0], values[1], "Single", "Vinyl",duration=values[2], studio_id=values[3], writer_ssn= values[4], Fname=values[5], Lname=values[6], cost=values[7])
+        elif values["CD"]==True:
+            values[7]=price_window()
+            adm.add_release(values[0], values[1], "Single", "CD",duration=values[2], studio_id=values[3], writer_ssn=values[4], Fname=values[5], Lname=values[6], cost=values[7])    
+        elif values["Online"]==True:
+            adm.add_release(values[0], values[1], "Single", "Online",duration=values[2], studio_id=values[3], writer_ssn=values[4], Fname=values[5], Lname=values[6])
+
+    window.close()
+
+def duration_window():
+
+    layout =    [
+                    [sg.Text("Please Enter the following information", font=("Courier",18))],[sg.VPush()],
+                    [sg.Text("Duration(sec)",size=(15,1),font=("Courier",18)), sg.InputText(font=("Courier",18))], [sg.VPush()],
+                    [sg.Submit(key="-SUMBIT-",font=("Courier",18))],[sg.VPush()],
+                    [sg.Cancel(button_color="red")]
+                ]
+    window = sg.Window("Duration Window", layout, modal=True)
+    event,values = window.read()
+
+    if event == "Cancel":
+        window.close()	
+    if	event	==	"-SUMBIT-":
+        return values[0]
+    
+
+def price_window():
+
+    layout =    [
+                    [sg.Text("Please Enter the following information", font=("Courier",18))],[sg.VPush()],
+                    [sg.Text("Format Price",size=(15,1),font=("Courier",18)), sg.InputText(font=("Courier",18))], [sg.VPush()],
+                    [sg.Submit(key="-SUMBIT-",font=("Courier",18))],[sg.VPush()],
+                    [sg.Cancel(button_color="red")]
+                ]
+    window = sg.Window("Price Window", layout, modal=True)
+    event,values = window.read()
+
+    if event == "Cancel":
+        window.close()	
+    if	event	==	"-SUMBIT-":
+        return values[0]
+
+def single_window():
+
+    layout =    [
+                    [sg.Text('Please Enter the following information', font=("Courier",18))],[sg.VPush()],
+                    [sg.Text('Duration(sec)',size=(15,1),font=("Courier",18)), sg.InputText(font=("Courier",18))], [sg.VPush()],
+                    [sg.Text('Studio Id',size=(15,1),font=("Courier",18)), sg.InputText(font=("Courier",18))], [sg.VPush()],
+                    [sg.Text('Writer Ssn',size=(15,1),font=("Courier",18)), sg.InputText(font=("Courier",18))], [sg.VPush()],
+                    [sg.Text('Writer First Name',size=(18,1),font=("Courier",18)), sg.InputText(font=("Courier",18))], [sg.VPush()],
+                    [sg.Text('Writer Last Name',size=(18,1),font=("Courier",18)), sg.InputText(font=("Courier",18))], [sg.VPush()],
+                    [sg.Submit(key="-SUMBIT-",font=("Courier",18))],[sg.VPush()],
+                    [sg.Cancel(button_color="red")]
+                ]
+    window = sg.Window("Add Single Window", layout, modal=True)
+    event,values = window.read()
+
+    if event == "Cancel":
+        window.close()
+    if event ==	"-SUMBIT-":
+        window.close()
+        return values[0], values[1], values[2], values[3], values[4]
+
+def year_window():
+
+    layout =    [
+                    [sg.Text("Please Enter the following information", font=("Courier",18))],[sg.VPush()],
+                    [sg.Text("Year",size=(15,1),font=("Courier",18)), sg.InputText(font=("Courier",18))], [sg.VPush()],
+                    [sg.Submit(key="-SUMBIT-",font=("Courier",18))],[sg.VPush()],
+                    [sg.Cancel(button_color="red")]
+                ]
+    window = sg.Window("Year Window", layout, modal=True)
+    event,values = window.read()
+
+    if event == "Cancel":
+        window.close()	
+    if	event	==	"-SUMBIT-":
+        window.close()
+        return values[0]
+
+def delete_window():
+
+    layout =    [
+                    [sg.Text("Please Enter the following information", font=("Courier",18))],[sg.VPush()],
+                    [sg.Text("Release Id",size=(15,1),font=("Courier",18)), sg.InputText(font=("Courier",18))], [sg.VPush()],
+                    [sg.Submit(key="-SUMBIT-",font=("Courier",18))],[sg.VPush()],
+                    [sg.Cancel(button_color="red")]
+                ]
+    window = sg.Window("Delete Window", layout, modal=True)
+    event,values = window.read()
+
+    if event == "Cancel":
+        window.close()	
+    if	event	==	"-SUMBIT-":
+        return values[0]
+
+def main():
+
+    db = sqlite3.connect('record-company.db')
+    cursor = db.cursor()
+    starting_window()
+  
+
+if __name__ == '__main__':
+    main()
+
+
+

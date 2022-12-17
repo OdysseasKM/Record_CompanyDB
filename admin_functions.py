@@ -21,12 +21,18 @@ def find_all(table):
         sql = """SELECT *
         FROM RELEASE;"""
         print(cursor.execute(sql).fetchall())
+
+    elif table == "Writer":
+        sql = """SELECT *
+        FROM WRITER;"""
+        print(cursor.execute(sql).fetchall())
     
 def add_artist(name, country):
 
     sql="""SELECT MAX(id)
     FROM ARTIST;"""
     max_id=cursor.execute(sql).fetchone()[0]
+    print(max_id)
     max_id += 1
 
     sql = """INSERT INTO ARTIST
@@ -37,7 +43,7 @@ def add_artist(name, country):
     
 def add_release(art_name, name, option, Format, duration=100, writer_ssn="11", cost=10, Fname="", Lname="", studio_id=0):
 
-    date = datetime.today()
+    date = datetime.date.today()
     sql="""SELECT MAX(release_id)
     FROM RELEASE;"""
     max_id=cursor.execute(sql).fetchone()[0]
@@ -62,6 +68,7 @@ def add_release(art_name, name, option, Format, duration=100, writer_ssn="11", c
     elif option == "Single":
         add_song(max_id, None, writer_ssn, duration, None, studio_id)
         if check_writer(writer_ssn)==0:
+            print("done2")
             add_writer(writer_ssn, Fname, Lname)
 
 
@@ -97,14 +104,9 @@ def add_song(idn, album_id, writer_ssn, duration, video_id, studio_id):
 
 def add_format(rel_id):
     
-    sql="""SELECT MAX(format_id)
-    FROM FORMAT;"""
-    max_id=cursor.execute(sql).fetchone()[0]
-    max_id += 1
-
     sql="""INSERT INTO FORMAT
-    VALUES(?, ?);"""
-    cursor.execute(sql,(max_id, rel_id))
+    VALUES(?);"""
+    cursor.execute(sql,(rel_id,))
 
 def add_vinyl(idn, cost):
 
@@ -120,7 +122,7 @@ def add_cd(idn, cost):
 
 def add_online(idn):
 
-    sql="""INSERT INTO VINYL
+    sql="""INSERT INTO ONLINE
     VALUES(?, 0);"""
     cursor.execute(sql,(idn,))
 
@@ -143,13 +145,16 @@ def add_feature_in(art_id, rel_id):
     VALUES(?, ?);"""
     cursor.execute(sql,(art_id, rel_id))
 
-def check_writer(ssn):
+def check_writer(Ssn):
 
     sql="""SELECT EXISTS(
         SELECT 1 
         FROM WRITER
         WHERE Ssn=?);"""
-    return(cursor.execute(sql(ssn,)))
+    print("done1")
+    result=cursor.execute(sql,(Ssn,))
+    print(result)
+    return result
 
 def annual_revenue(year):
 
@@ -172,7 +177,8 @@ def artist_profit(name):
     FROM ARTIST JOIN RELEASE ON ARTIST.id=artist_id JOIN FORMAT ON release_id=rel_id JOIN VINYL ON format_id=VINYL.id JOIN CD ON format_id=CD.id
     WHERE ARTIST.nickname=?
     GROUP BY ARTIST.nickname
-    ORDER BY ESODA;"""
+    ORDER BY ESODA
+    LIMIT 3;"""
     print(cursor.execute(sql,(name,)))
     
 def studios():
@@ -188,3 +194,15 @@ def delete_release(idn):
     sql="""DELETE FROM RELEASE
     WHERE release_id=?;"""
     cursor.execute(sql,(idn,))
+
+def add_studio(street, number, city, country):
+
+    sql="""SELECT MAX(id)
+    FROM STUDIO;"""
+    max_id=cursor.execute(sql).fetchone()[0]
+    max_id += 1
+
+    sql = """INSERT INTO STUDIO
+    VALUES(?, ?, ?, ?, ?);"""
+    cursor.execute(sql,(max_id, street, number, city, country))
+    db.commit()
