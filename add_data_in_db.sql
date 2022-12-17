@@ -46,17 +46,17 @@ INSERT into GENRE(name, rel_id) values ('laikh-indie',11);
 INSERT into GENRE(name, rel_id) values ('punk',12);
 INSERT into GENRE(name, rel_id) values ('trap',12);
 
-insert into FORMAT (format_id) values (1);
-insert into FORMAT (format_id) values (2);
-insert into FORMAT (format_id) values (3);
-insert into FORMAT (format_id) values (4);
-insert into FORMAT (format_id) values (5);
-insert into FORMAT (format_id) values (6);
-insert into FORMAT (format_id) values (7);
-insert into FORMAT (format_id) values (8);
-insert into FORMAT (format_id) values (9);
-insert into FORMAT (format_id) values (11);
-insert into FORMAT (format_id) values (12);
+insert into FORMAT (format_id, rel_id) values (1,1);
+insert into FORMAT (format_id, rel_id) values (2,2);
+insert into FORMAT (format_id, rel_id) values (3,3);
+insert into FORMAT (format_id, rel_id) values (4,4);
+insert into FORMAT (format_id, rel_id) values (5,5);
+insert into FORMAT (format_id, rel_id) values (6,6);
+insert into FORMAT (format_id, rel_id) values (7,7);
+insert into FORMAT (format_id, rel_id) values (8,8);
+insert into FORMAT (format_id, rel_id) values (9,9);
+insert into FORMAT (format_id, rel_id) values (10,11);
+insert into FORMAT (format_id, rel_id) values (11,12);
 
 
 
@@ -65,8 +65,9 @@ insert into ONLINE (id, views) values (2,1001);
 insert into ONLINE (id, views) values (3,1002);
 insert into ONLINE (id, views) values (4,1003);
 insert into ONLINE (id, views) values (5,1004);
+insert into ONLINE (id, views) values (9,7);
 insert into ONLINE (id, views) values (11, 7000000);
-insert into ONLINE (id, views) values (12,7);
+
 
 
 insert into rating (stars, rel_id) values (4,1);
