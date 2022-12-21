@@ -8,19 +8,19 @@ cursor = db.cursor()
 def find_all(table):
     
     if table == "Artist":
-        sql = """SELECT *
+        sql = """SELECT nickname, country
         FROM ARTIST;"""
-        print(cursor.execute(sql).fetchall())
+        return(cursor.execute(sql).fetchall())
 
     elif table == "Studio":
-        sql = """SELECT *
+        sql = """SELECT id, town
         FROM STUDIO;"""
-        print(cursor.execute(sql).fetchall())
+        return(cursor.execute(sql).fetchall())
     
     elif table == "Release":
-        sql = """SELECT *
-        FROM RELEASE;"""
-        print(cursor.execute(sql).fetchall())
+        sql = """SELECT release_title, nickname
+        FROM RELEASE JOIN ARTIST ON artist_id = id;"""
+        return(cursor.execute(sql).fetchall())
 
     elif table == "Writer":
         sql = """SELECT *
@@ -41,7 +41,7 @@ def add_artist(name, country):
     db.commit()
 
     
-def add_release(art_name, name, option, Format, duration=100, writer_ssn="11", cost=10, Fname="", Lname="", studio_id=0):
+def add_release(art_name, name, option, Format="", duration=100, writer_ssn="11", cost=10, Fname="", Lname="", studio_id=0):
 
     date = datetime.date.today()
     sql="""SELECT MAX(release_id)
@@ -68,7 +68,6 @@ def add_release(art_name, name, option, Format, duration=100, writer_ssn="11", c
     elif option == "Single":
         add_song(max_id, None, writer_ssn, duration, None, studio_id)
         if check_writer(writer_ssn)==0:
-            print("done2")
             add_writer(writer_ssn, Fname, Lname)
 
 
@@ -147,14 +146,14 @@ def add_feature_in(art_id, rel_id):
 
 def check_writer(Ssn):
 
-    sql="""SELECT EXISTS(
-        SELECT 1 
+    sql="""SELECT *
         FROM WRITER
-        WHERE Ssn=?);"""
-    print("done1")
-    result=cursor.execute(sql,(Ssn,))
-    print(result)
-    return result
+        WHERE Ssn=?;"""
+    cursor.execute(sql,(Ssn,))
+    result = cursor.fetchall()
+    return (len(result))
+
+
 
 def annual_revenue(year):
 
@@ -194,6 +193,7 @@ def delete_release(idn):
     sql="""DELETE FROM RELEASE
     WHERE release_id=?;"""
     cursor.execute(sql,(idn,))
+    db.commit()
 
 def add_studio(street, number, city, country):
 

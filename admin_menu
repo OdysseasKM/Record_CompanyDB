@@ -5,7 +5,7 @@ import datetime
 
 def starting_window():
 
-    add_list = ["Insert", ["Artist", "Release", "Studio"]]
+    add_list = ["Insert", ["Artist", "Release", "Studio", "Format"]]
     delete_list = ["Delete", ["Artist", "Release"]]
     inspect_list = ["Inspect", ["Artist", "Release", "Studio", "Writer"]]
 
@@ -19,7 +19,7 @@ def starting_window():
                 ]
     window	=	sg.Window("Data	Entry Form", layout, size=(500,500))
     event, values=window.read()	
-
+    window.close()
     if event == "Cancel":
         window.close()
 
@@ -33,29 +33,42 @@ def starting_window():
 
         elif values[0] == "Studio":
             add_studio_window()
+            
+        elif values[0] == "Format":
+            add_format_window()
+            
 
     elif event == 1:
         idn = delete_window()
         adm.delete_release(idn)
+        popup_window()
 
     elif event==2:
-
-        if values[3] == "Artist":
-            adm.find_all("Artist")
+ 
+        if values[2] == "Artist":
+            results=adm.find_all("Artist")
+            headings=['Nickname', 'Country']
+            print_window(headings, results)
             
-        elif values[3] == "Release":
-           adm.find_all("Release")
+        elif values[2] == "Release":
+            results=adm.find_all("Release")
+            headings=['Release_title', 'Artist']
+            print_window(headings, results)
 
-        elif values[3] == "Studio":
-            adm.find_all("Studio")
+        elif values[2] == "Studio":
+            results=adm.find_all("Studio")
+            headings=['Studio_id', 'Town']
+            print_window(headings, results)
 
-        elif values[3] == "Writer":
+        elif values[2] == "Writer":
             adm.find_all("Writer")
+            headings=['Ssn', 'First Name', 'Last Name']
+            print_window(headings, results)
 
     elif event == 3:
         year=year_window()
         adm.annual_revenue(year)
-    window.close()
+
         
 
 def add_artist_window():
@@ -67,14 +80,47 @@ def add_artist_window():
                     [sg.Submit(key="-SUMBIT-",font=("Courier",18))],[sg.VPush()],
                     [sg.Cancel(button_color="red")]
                 ]
-    window = sg.Window("Add Artist Window", layout, modal=True)
+    window = sg.Window("Add Artist Window", modal=True)
     event, values = window.read()
 
     if event == "Cancel":
         window.close()	
     if	event	==	"-SUMBIT-":
         adm.add_artist(values[0], values[1])
-    window.close()
+        window.close()
+        popup_window()
+
+def add_format_window():
+
+    layout =    [
+                    [sg.Text('Please Enter the following information', font=("Courier",18))],[sg.VPush()],
+                    [sg.Text('Release Id',	size=(15,1),font=("Courier",18)), sg.InputText(font=("Courier",	18))], [sg.VPush()],	
+                    [sg.Text('Price',size=(15,1),font=("Courier",18)), sg.InputText(font=("Courier",18))], [sg.VPush()],
+                    [sg.Text('Please Choose the Format', font=("Courier",18))],[sg.VPush()],
+                    [sg.CB("Vinyl", key="Vinyl")],
+                    [sg.CB("CD", key="CD")],
+                    [sg.CB("Online", key="Online")],
+                    [sg.Submit(key="-SUMBIT-",font=("Courier",18))],[sg.VPush()],
+                    [sg.Cancel(button_color="red")]
+                ]
+    window = sg.Window("Add Artist Window", layout, modal=True)
+    event, values = window.read()
+
+    if event == "Cancel":
+        window.close()	
+    if	event	==	"-SUMBIT-":
+        if values["Vinyl"]==True:
+                adm.add_format(values[0])
+                adm.add_vinyl(values[0], cost=values[1])
+        elif values["CD"]==True:
+            adm.add_format(values[0])
+            adm.add_cd(values[0], cost=values[1])
+        elif values["Online"]==True:
+            adm.add_format(values[0])
+            adm.add_online(values[0])
+
+        window.close()
+        popup_window()
 
 def add_studio_window():
 
@@ -94,7 +140,9 @@ def add_studio_window():
         window.close()
     if	event	==	"-SUMBIT-":
         adm.add_studio(values[0], values[1], values[2], values[3])
-    window.close()
+        
+        window.close()
+        popup_window()
 
 def add_release_window():
 
@@ -115,34 +163,42 @@ def add_release_window():
                 ]
     window = sg.Window("Add Release Window", layout, modal=True)
     event, values = window.read()	
-    print(values)
-    if values["Album"]==True:
-        print("album")
-        if values["Vinyl"]==True:
-            values[2]=price_window()
-            adm.add_release(values[0], values[1], "Album", "Vinyl", cost=values[2])
-        elif values["CD"]==True:
-            values[2]=price_window()
-            adm.add_release(values[0], values[1], "Album", "CD", cost=values[2])
-        elif values["Online"]==True:
-            adm.add_release(values[0], values[1], "Album", "Online")
+    
+    if event == "Cancel":
+        window.close()
+    if	event	==	"-SUMBIT-":
+        if values["Album"]==True:
+            print("album")
+            if values["Vinyl"]==True:
+                values[2]=price_window()
+                adm.add_release(values[0], values[1], "Album", Format="Vinyl", cost=values[2])
+            elif values["CD"]==True:
+                values[2]=price_window()
+                adm.add_release(values[0], values[1], "Album", Format="CD", cost=values[2])
+            elif values["Online"]==True:
+                adm.add_release(values[0], values[1], "Album", Format="Online")
+            else:
+                adm.add_release(values[0], values[1], "Album")
+            
 
-    elif values["Video"]==True:
-        values[2]=duration_window()
-        adm.add_release(values[0], values[1], "Video", "Online", duration=values[2])
+        elif values["Video"]==True:
+            values[2]=duration_window()
+            adm.add_release(values[0], values[1], "Video", Format="Online", duration=values[2])
 
-    elif values["Single"]==True:
-        values[2], values[3], values[4], values[5], values[6] = single_window()
-        if values["Vinyl"]==True:
-            values[7]=price_window()
-            adm.add_release(values[0], values[1], "Single", "Vinyl",duration=values[2], studio_id=values[3], writer_ssn= values[4], Fname=values[5], Lname=values[6], cost=values[7])
-        elif values["CD"]==True:
-            values[7]=price_window()
-            adm.add_release(values[0], values[1], "Single", "CD",duration=values[2], studio_id=values[3], writer_ssn=values[4], Fname=values[5], Lname=values[6], cost=values[7])    
-        elif values["Online"]==True:
-            adm.add_release(values[0], values[1], "Single", "Online",duration=values[2], studio_id=values[3], writer_ssn=values[4], Fname=values[5], Lname=values[6])
-
-    window.close()
+        elif values["Single"]==True:
+            values[2], values[3], values[4], values[5], values[6] = single_window()
+            if values["Vinyl"]==True:
+                values[7]=price_window()
+                adm.add_release(values[0], values[1], "Single", Format="Vinyl",duration=values[2], studio_id=values[3], writer_ssn= values[4], Fname=values[5], Lname=values[6], cost=values[7])
+            elif values["CD"]==True:
+                values[7]=price_window()
+                adm.add_release(values[0], values[1], "Single", Format="CD",duration=values[2], studio_id=values[3], writer_ssn=values[4], Fname=values[5], Lname=values[6], cost=values[7])    
+            elif values["Online"]==True:
+                adm.add_release(values[0], values[1], "Single", Format="Online",duration=values[2], studio_id=values[3], writer_ssn=values[4], Fname=values[5], Lname=values[6])
+            else:
+                adm.add_release(values[0], values[1], "Single", duration=values[2], studio_id=values[3], writer_ssn=values[4], Fname=values[5], Lname=values[6])
+        window.close()
+        popup_window()
 
 def duration_window():
 
@@ -154,11 +210,13 @@ def duration_window():
                 ]
     window = sg.Window("Duration Window", layout, modal=True)
     event,values = window.read()
-
+    
     if event == "Cancel":
         window.close()	
     if	event	==	"-SUMBIT-":
+        window.close()
         return values[0]
+    
     
 
 def price_window():
@@ -171,11 +229,13 @@ def price_window():
                 ]
     window = sg.Window("Price Window", layout, modal=True)
     event,values = window.read()
-
+    
     if event == "Cancel":
         window.close()	
     if	event	==	"-SUMBIT-":
+        window.close()
         return values[0]
+    
 
 def single_window():
 
@@ -197,6 +257,7 @@ def single_window():
     if event ==	"-SUMBIT-":
         window.close()
         return values[0], values[1], values[2], values[3], values[4]
+    
 
 def year_window():
 
@@ -230,6 +291,26 @@ def delete_window():
         window.close()	
     if	event	==	"-SUMBIT-":
         return values[0]
+
+def print_window(headings, results):
+    
+    headings = headings
+    data = results
+
+    layout = [[sg.Table(data, headings=headings, justification='left', key='-TABLE-')],]
+    window = sg.Window("Title", layout, finalize=True)
+
+    while True:
+        event, values = window.read()
+        if event == sg.WINDOW_CLOSED:
+            break
+        print(event, values)
+
+    window.close()
+
+def popup_window():
+
+    sg.popup("Your action has been completed")
 
 def main():
 
