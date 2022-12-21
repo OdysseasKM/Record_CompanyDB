@@ -1,7 +1,7 @@
 import sqlite3
 
 def open_db():
-    db = sqlite3.connect('database.db')
+    db = sqlite3.connect('record-company.db')
     global cursor
     cursor = db.cursor()
 
@@ -10,7 +10,7 @@ def open_db():
 def querie1():
     sql = """select r.release_title, onl.views
         from release as r, video as v, format as f, online as onl
-        where r.release_id = v.video_id and v.video_id = f.format_id and f.format_id = onl.id
+        where r.release_id = f.rel_id  and r.release_id = v.video_id  and f.format_id = onl.id
         order by onl.views DESC
         limit 10;"""
     print(cursor.execute(sql).fetchall())
@@ -25,13 +25,13 @@ def querie2():
     genre = input("Type a genre : ") 
     sql = """select r.release_title , onl.views, g.name
             from release as r, video as v, format as f, online as onl, genre as g
-            where r.release_id = v.video_id and 
-            v.video_id = f.format_id and 
-            f.format_id = g.rel_id and 
+            where r.release_id = v.video_id and
+            r.release_id = f.rel_id  and
+			r.release_id = g.rel_id and
             f.format_id = onl.id and
 			g.name = ?
             order by onl.views DESC
-            limit(10)"""
+            limit (10)"""
     cursor.execute(sql, (genre,))
     result = cursor.fetchall()
     print(result)
