@@ -8,29 +8,28 @@ def open_db():
 
 # 1. Τα 10 πιο δημοφιλή βίντεο (βάση views)
 def querie1():
-    sql = """select r.release_title, onl.views
-        from release as r, video as v, format as f, online as onl
-        where r.release_id = f.rel_id  and r.release_id = v.video_id  and f.format_id = onl.id
-        order by onl.views DESC
+    sql = """select r.release_title, dig.views
+        from release as r, video as v, format as f, digital as dig
+        where r.rel_id = f.rel_id  and r.rel_id = v.video_id  and f.format_id = dig.format_id
+        order by dig.views DESC
         limit 10;"""
     print(cursor.execute(sql).fetchall())
 
 # 2. Τα 10 πιο δημοφιλή βίντεο συγκεκριμένου genre.
 def querie2():
     print("genres:",end="")
-    sql = """select GENRE.name
+    sql = """select GENRE.g_name
             from GENRE 
-            GROUP by GENRE.name;"""
+            GROUP by GENRE.g_name;"""
     print(cursor.execute(sql).fetchall())  
     genre = input("Type a genre : ") 
-    sql = """select r.release_title , onl.views, g.name
-            from release as r, video as v, format as f, online as onl, genre as g
-            where r.release_id = v.video_id and
-            r.release_id = f.rel_id  and
-			r.release_id = g.rel_id and
-            f.format_id = onl.id and
-			g.name = ?
-            order by onl.views DESC
+    sql = """select r.release_title , dig.views, g.g_name
+            from release as r join genre as g on r.genre_id=g.g_id, video as v, format as f, digital as dig
+            where r.rel_id = v.video_id and
+            r.rel_id = f.rel_id  and
+			f.format_id = dig.format_id  and
+			g.g_name = ?
+            order by dig.views DESC
             limit (10)"""
     cursor.execute(sql, (genre,))
     result = cursor.fetchall()
@@ -72,7 +71,7 @@ def querie3():
     if (artist_id !=-1):
         sql = """select r.release_title
                 FROM release as r, video as v, artist as a
-                where a.id = r.artist_id and v.video_id = r.release_id and a.id = ?"""
+                where a.id = r.artist_id and v.video_id = r.rel_id and a.id = ?"""
         cursor.execute(sql,(artist_id,))
         result = cursor.fetchall()
         print(result)
@@ -81,14 +80,14 @@ def find_song_with_id(song_name = ""):
     if song_name == "": song_name = input("select song : ")
     id = int(input("type an id for song: "))
     sql = """select song.song_id, release.release_title
-            from song join release on song_id = release_id
-            where release_title = ? and release_id = ?"""
+            from song join release on song_id = rel_id
+            where release_title = ? and rel_id = ?"""
     cursor.execute(sql,(song_name,id))
     return id
 
 def find_song():
     sql = """select song.song_id, release.release_title
-            from song join release on song_id = release_id
+            from song join release on song_id = rel_id
             where release_title = ?"""
     song_name = input("select song : ")
     cursor.execute(sql,(song_name,))
@@ -112,32 +111,31 @@ def querie4():
     song_id = int(find_song())
     if (song_id!=-1):
         # find genre of song
-        sql = """select genre.name 
-                from song join genre on song.song_id = genre.rel_id
-                where song_id = ? 
-                limit (1);"""
+        sql ="""select g.g_id, g.g_name, s.song_id
+                from genre as g, song as s, release as r
+                where r.genre_id = g.g_id  and
+			    r.rel_id =s.song_id AND
+			    s.song_id = ?"""
         cursor.execute(sql,(song_id,))
-        genre = cursor.fetchall()[0][0]
-        sql = """select r.release_id, r.release_title, avg(rate.stars) as avg_stars
-                from release as r, song as s, genre as g, RATING as rate
-                where r.release_id = s.song_id AND
-                s.song_id = g.rel_id and 
-                rate.rel_id = g.rel_id and 
-                g.name = ? and 
-				r.release_id != ? 
-                group by r.release_id 
+        genre = int(cursor.fetchall()[0][0])
+        sql ="""select r.rel_id, r.release_title, round ( avg(rate.stars) ,2 ) as avg_stars
+                from release as r, song as s, rating as rate
+                where r.genre_id = ? and 
+                r.rel_id = s.song_id AND
+                s.song_id != ? 
+                group by r.rel_id
                 order by avg_stars DESC
-                LIMIT (5);"""
+                limit (5);"""
         cursor.execute(sql,(genre,song_id))
         result = cursor.fetchall()
         print(result)
 
-# 4. Artist (ή Writer) με το καλύτερο μέσο όρο rating στα releases.
+# 4. Artist με το καλύτερο μέσο όρο rating στα releases.
 def querie5():
     sql = """select a.nickname, Round (avg(rate.stars), 2) as avg_rate
             from artist as a, release as r, RATING as rate
             where a.id = r.artist_id AND
-            r.release_id = rate.rel_id
+            r.rel_id = rate.rel_id
             group by artist_id
             order by avg_rate DESC"""
     cursor.execute(sql)
