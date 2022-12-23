@@ -2,18 +2,18 @@ import sqlite3
 import datetime 
 
 sql = ""
-db = sqlite3.connect('record-company.db')
+db = sqlite3.connect('record_db.db')
 cursor = db.cursor()
 
 def find_all(table):
     
     if table == "Artist":
-        sql = """SELECT nickname, country
+        sql = """SELECT nickname, origin
         FROM ARTIST;"""
         return(cursor.execute(sql).fetchall())
 
     elif table == "Studio":
-        sql = """SELECT id, town
+        sql = """SELECT studio_id, town
         FROM STUDIO;"""
         return(cursor.execute(sql).fetchall())
     
@@ -22,17 +22,16 @@ def find_all(table):
         FROM RELEASE JOIN ARTIST ON artist_id = id;"""
         return(cursor.execute(sql).fetchall())
 
-    elif table == "Writer":
-        sql = """SELECT *
-        FROM WRITER;"""
-        print(cursor.execute(sql).fetchall())
+    elif table == "Contributor":
+        sql = """SELECT ssn, first_name, last_name, role
+        FROM CONTRIBUTOR JOIN CONTIBUTS_IN ON ssn=contributor_id;"""
+        return(cursor.execute(sql).fetchall())
     
 def add_artist(name, country):
 
     sql="""SELECT MAX(id)
     FROM ARTIST;"""
     max_id=cursor.execute(sql).fetchone()[0]
-    print(max_id)
     max_id += 1
 
     sql = """INSERT INTO ARTIST
@@ -41,10 +40,10 @@ def add_artist(name, country):
     db.commit()
 
     
-def add_release(art_name, name, option, Format="", duration=100, writer_ssn="11", cost=10, Fname="", Lname="", studio_id=0):
+def add_release(art_name, name, option, genre, language="", Format="", duration=100, writer_ssn="11", cost=0, Fname="", Lname="", studio_id=0):
 
     date = datetime.date.today()
-    sql="""SELECT MAX(release_id)
+    sql="""SELECT MAX(rel_id)
     FROM RELEASE;"""
     max_id=cursor.execute(sql).fetchone()[0]
     max_id += 1
@@ -54,30 +53,32 @@ def add_release(art_name, name, option, Format="", duration=100, writer_ssn="11"
     WHERE ARTIST.nickname= ?;"""
     artist_id = cursor.execute(sql, (art_name,)).fetchone()[0]
 
+    if check_genre(genre)==0:
+        add_genre(genre)
+
+    sql = """SELECT g_id
+    FROM GENRE
+    WHERE GENRE.g_name= ?;"""
+    genre_id = cursor.execute(sql, (genre,)).fetchone()[0]
+
     sql = """INSERT INTO RELEASE
-    VALUES(?, ?, ?, ?);"""
-    cursor.execute(sql,(artist_id, max_id, date, name))
+    VALUES(?, ?, ?, ?, ?);"""
+    cursor.execute(sql, (max_id, artist_id, date, name, genre_id))
 
-
-    add_publish(artist_id, max_id)
 
     if option == "Album":
         add_album(max_id, name)
     elif option == "Video":
         add_video(max_id, duration)
     elif option == "Single":
-        add_song(max_id, None, writer_ssn, duration, None, studio_id)
-        if check_writer(writer_ssn)==0:
-            add_writer(writer_ssn, Fname, Lname)
+        add_song(max_id, None, duration, None, studio_id, language)
 
-
-    add_format(max_id)
     if Format == "Vinyl":
-        add_vinyl(max_id, cost)
+        add_format(max_id, 1, cost)
     elif Format == "CD":
-        add_cd(max_id, cost)
-    elif Format == "Online":
-        add_online(max_id)
+        add_format(max_id, 2, cost)
+    elif Format == "Digital":
+        add_format(max_id, 3)
 
 
     db.commit()
@@ -95,17 +96,31 @@ def add_video(idn, duration):
     VALUES(?, ?);"""
     cursor.execute(sql,(idn, duration))
 
-def add_song(idn, album_id, writer_ssn, duration, video_id, studio_id):
+def add_song(idn, album_id, duration, video_id, studio_id, language):
 
     sql="""INSERT INTO SONG
     VALUES(?, ?, ?, ?, ?, ?);"""
-    cursor.execute(sql,(idn, album_id, writer_ssn, duration, video_id, studio_id))
+    cursor.execute(sql,(idn, album_id, duration, video_id, studio_id, language))
 
-def add_format(rel_id):
-    
+def add_format(rel_id, option, cost=0):
+
+    sql="""SELECT MAX(format_id)
+    FROM FORMAT;"""
+    FORMAT_id=cursor.execute(sql).fetchone()[0]
+    FORMAT_id += 1
+
     sql="""INSERT INTO FORMAT
-    VALUES(?);"""
-    cursor.execute(sql,(rel_id,))
+    VALUES(?,?);"""
+    cursor.execute(sql,(rel_id, FORMAT_id))
+
+    if option==1:
+        add_vinyl(FORMAT_id, cost)
+    elif option==2:
+        add_cd(FORMAT_id, cost)
+    elif option==3:
+        add_digital(FORMAT_id)
+    db.commit()
+
 
 def add_vinyl(idn, cost):
 
@@ -119,17 +134,41 @@ def add_cd(idn, cost):
     VALUES(?, 0, ?);"""
     cursor.execute(sql,(idn, cost))
 
-def add_online(idn):
+def add_digital(idn):
 
-    sql="""INSERT INTO ONLINE
+    sql="""INSERT INTO DIGITAL
     VALUES(?, 0);"""
     cursor.execute(sql,(idn,))
 
-def add_writer(ssn, fname, lname):
+def add_contributor(release_name, ssn, fname, lname, role):
 
-    sql="""INSERT INTO WRITER
+    sql = """SELECT rel_id
+    FROM RELEASE
+    WHERE RELEASE.release_title= ?;"""
+    idn = cursor.execute(sql, (release_name,)).fetchone()[0]
+
+    sql="""INSERT INTO CONTRIBUTOR
     VALUES(?, ?, ?);"""
-    cursor.execute(sql,(ssn, fname, lname))
+    cursor.execute(sql,(lname, fname, ssn))
+
+    sql="""INSERT INTO CONTIBUTS_IN
+    VALUES(?, ?, ?);"""
+    cursor.execute(sql,(ssn, idn, role))
+
+    db.commit()
+
+def add_genre(name):
+    
+    sql="""SELECT MAX(g_id)
+    FROM GENRE;"""
+    max_id=cursor.execute(sql).fetchone()[0]
+    max_id += 1
+    print(max_id)
+    sql="""INSERT INTO GENRE
+    VALUES(?, ?);"""
+    cursor.execute(sql,(name, max_id))
+    db.commit()
+    print("added")
 
 def add_publish(art_id, rel_id):
 
@@ -144,16 +183,24 @@ def add_feature_in(art_id, rel_id):
     VALUES(?, ?);"""
     cursor.execute(sql,(art_id, rel_id))
 
-def check_writer(Ssn):
+def check_contibutor(Ssn):
 
     sql="""SELECT *
-        FROM WRITER
+        FROM CONTRIBUTOR
         WHERE Ssn=?;"""
     cursor.execute(sql,(Ssn,))
     result = cursor.fetchall()
     return (len(result))
 
+def check_genre(g_name):
 
+    sql="""SELECT *
+        FROM GENRE
+        WHERE g_name=?;"""
+    cursor.execute(sql,(g_name,))
+    result = cursor.fetchall()
+    print(len(result))
+    return (len(result))
 
 def annual_revenue(year):
 
@@ -186,18 +233,25 @@ def studios():
     FROM STUDIO JOIN SONG ON id=studio_id
     GROUP BY STUDIO.id
     ORDER BY recordings;"""
-    print(cursor.execute(sql))
+    return(cursor.execute(sql))
 
 def delete_release(idn):
 
     sql="""DELETE FROM RELEASE
-    WHERE release_id=?;"""
+    WHERE rel_id=?;"""
     cursor.execute(sql,(idn,))
+    db.commit()
+
+def delete_artist(name):
+
+    sql="""DELETE FROM ARTIST
+    WHERE nickname=?;"""
+    cursor.execute(sql,(name,))
     db.commit()
 
 def add_studio(street, number, city, country):
 
-    sql="""SELECT MAX(id)
+    sql="""SELECT MAX(studio_id)
     FROM STUDIO;"""
     max_id=cursor.execute(sql).fetchone()[0]
     max_id += 1
@@ -205,4 +259,16 @@ def add_studio(street, number, city, country):
     sql = """INSERT INTO STUDIO
     VALUES(?, ?, ?, ?, ?);"""
     cursor.execute(sql,(max_id, street, number, city, country))
+    db.commit()
+
+def add_individual(ssn, fname, lname, art_name):
+
+    sql = """SELECT id
+    FROM ARTIST
+    WHERE ARTIST.nickname= ?;"""
+    artist_id = cursor.execute(sql, (art_name,)).fetchone()[0]
+
+    sql="""INSERT INTO INDIVIDUAL
+    VALUES(?, ?, ?, ?);"""
+    cursor.execute(sql,(ssn, artist_id, fname, lname))
     db.commit()
