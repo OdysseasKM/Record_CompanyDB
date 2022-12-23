@@ -18,11 +18,11 @@ def main():
     user_functions.open_db()
     while (1):
         choice = menu()
-        if choice == 1: user_functions.querie1()
-        elif choice == 2: user_functions.querie2()
-        elif choice == 3: user_functions.querie3()
-        elif choice == 4: user_functions.querie4()
-        elif choice == 5: user_functions.querie5()
+        if choice == 1: user_functions.query1()
+        elif choice == 2: user_functions.query2()
+        elif choice == 3: user_functions.query3()
+        elif choice == 4: user_functions.query4()
+        elif choice == 5: user_functions.query5()
         elif choice == -1: break
 
 if __name__ == '__main__':

@@ -20,14 +20,11 @@ def return_genre():
     sql = """select GENRE.g_name
             from GENRE 
             GROUP by GENRE.g_name;"""
-    print(cursor.execute(sql).fetchall()) 
     return cursor.execute(sql).fetchall()
 
 # 2. Τα 10 πιο δημοφιλή βίντεο συγκεκριμένου genre.
-def query2():
-    return_genre()
-    genre = input("Type a genre : ") 
-    sql = """select r.release_title , dig.views, g.g_name
+def query2(genre):
+    sql = """select r.release_title , dig.views
             from release as r join genre as g on r.genre_id=g.g_id, video as v, format as f, digital as dig
             where r.rel_id = v.video_id and
             r.rel_id = f.rel_id  and
@@ -37,7 +34,7 @@ def query2():
             limit (10)"""
     cursor.execute(sql, (genre,))
     result = cursor.fetchall()
-    print(result)
+    return result
 
 def find_artist_with_id(nickname = ""):
     if nickname == "": nickname = input("select artist (type nickname): ")
@@ -70,7 +67,7 @@ def find_artist_with_nickname():
     return id
 
 # 8. Τα βίντεο ενός καλλιτέχνη.
-def query3():
+def query6():
     artist_id = int(find_artist_with_nickname())
     if (artist_id !=-1):
         sql = """select r.release_title
@@ -89,30 +86,17 @@ def find_song_with_id(song_name = ""):
     cursor.execute(sql,(song_name,id))
     return id
 
-def find_song():
+def find_song(song_name):
     sql = """select song.song_id, release.release_title
             from song join release on song_id = rel_id
             where release_title = ?"""
-    song_name = input("select song : ")
     cursor.execute(sql,(song_name,))
     result = cursor.fetchall()
-    if (len(result)==0):
-        print("this song does not exist.")
-        choice = int(input("if you want to try again type 1, or -1 to exit. select : "))
-        if (choice==1): 
-            id = find_song()
-            return id
-        elif (choice==-1): return -1
-    elif (len(result)>1):
-        print(result)
-        print("found more than one song with this name.")
-        id = find_song_with_id(song_name)
-    else: id = result[0][0]
-    return id
+    if (len(result)==0):return False
+    return result[0][0]
 
 # 10. Επιλέγοντας ένα τραγούδι ή ενα άλμπουμ να εμφανίζονται στον χρήστη 5 προτεινόμενα τραγούδια η άλμπουμ (βασισμένα στο είδος και στο rating) 
-def query4():
-    song_id = int(find_song())
+def query4(song_id):
     if (song_id!=-1):
         # find genre of song
         sql ="""select g.g_id, g.g_name, s.song_id
@@ -122,20 +106,21 @@ def query4():
 			    s.song_id = ?"""
         cursor.execute(sql,(song_id,))
         genre = int(cursor.fetchall()[0][0])
-        sql ="""select r.rel_id, r.release_title, round ( avg(rate.stars) ,2 ) as avg_stars
-                from release as r, song as s, rating as rate
+        sql ="""select r.release_title, a.nickname,g.g_name, round ( avg(rate.stars) ,2 ) as avg_stars
+                from release as r join artist as a on r.artist_id=a.id , song as s, rating as rate, genre as g
                 where r.genre_id = ? and 
-                r.rel_id = s.song_id AND
+                r.rel_id = s.song_id and
+                r.genre_id = g.g_id and
                 s.song_id != ? 
                 group by r.rel_id
                 order by avg_stars DESC
                 limit (5);"""
         cursor.execute(sql,(genre,song_id))
         result = cursor.fetchall()
-        print(result)
+        return result
 
 # 4. Artist με το καλύτερο μέσο όρο rating στα releases.
-def query5():
+def query3():
     sql = """select a.nickname, Round (avg(rate.stars), 2) as avg_rate
             from artist as a, release as r, RATING as rate
             where a.id = r.artist_id AND
@@ -144,4 +129,8 @@ def query5():
             order by avg_rate DESC"""
     cursor.execute(sql)
     result = cursor.fetchall()
-    print(result)
+    return result
+
+def query5(id,stars):
+    sql = """insert into rating (stars, rel_id) values (?,?);"""
+    cursor.execute(sql)
