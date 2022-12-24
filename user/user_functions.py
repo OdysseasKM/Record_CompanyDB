@@ -1,10 +1,15 @@
 import sqlite3
 
 def open_db():
-    db = sqlite3.connect('record-company.db')
+    path = "record-company.db"
+    global db
+    db = sqlite3.connect(path)
     global cursor
     cursor = db.cursor()
 
+def close_db():
+    db.commit()
+    cursor.close()
 
 # 1. Τα 10 πιο δημοφιλή βίντεο (βάση views)
 def query1():
@@ -145,3 +150,7 @@ def query5():
     cursor.execute(sql)
     result = cursor.fetchall()
     print(result)
+
+def query6(id,stars):
+    sql = """insert into rating (stars, rel_id) values (?,?);"""
+    cursor.execute(sql,(id,stars))

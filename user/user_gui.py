@@ -53,29 +53,30 @@ def select_genre_window():
     window.close()
     return 0                     
 
-def select_song(text):
+def select_rel(text1,title,note):
     layout = [
-        [sg.Text('Enter a song name:')],
+        [sg.Text(text1)],
         [sg.Input(),sg.Button('OK')],
         [sg.Button('Exit')],
-        [sg.Text(text)]
+        [sg.Text(note)]
     ]
 
-    window = sg.Window("Select a song",layout, font=my_font, size = my_window_size,resizable = True,finalize=True)
+    window = sg.Window(title,layout, font=my_font, size = my_window_size,resizable = True,finalize=True)
     
     while True:
         event, values = window.read()
-        if event == "OK" or event == sg.WINDOW_CLOSED:
-            break
-        if event == "Exit":
+        if event == "OK":
+            window.close()
+            value = values[0]
+            if value=="":return True
+            else: return value
+        if event == "Exit" or event == sg.WINDOW_CLOSED:
             window.close()
             return False
-
-    window.close()
-    return values[0]
+    
 
 def select_rating():
-    stars = ["1","2","3","4","5"]
+    stars = ["Stars",["1","2","3","4","5"]]
     
     button1 = sg.ButtonMenu("Stars", menu_def=stars)
     button2 = sg.Button('OK')
@@ -123,10 +124,12 @@ def d_query3():
     print_window(headings,results,col_size, "Top artists")
 
 def d_query4(note):
-    song_name = select_song(note)
-    if (not song_name):return
+    text = "Type the name of the song:"
+    title = "Select a song."
+    name = select_rel(text,title,note)
+    if (not name):return
     else:
-        id = uf.find_song(song_name)
+        id = uf.find_song(name)
         if (not id):d_query4("The song does not exist.. please type again.")
         else : 
             results = uf.query4(id)
@@ -135,33 +138,72 @@ def d_query4(note):
             print_window(headings,results,col_size, "Relative Songs.")
 
 def d_query5(note):
-    song_name = select_song(note)
-    if (not song_name):return
+    text = "Type the name of the song:"
+    title = "Select a song."
+    name = select_rel(text,title,note)
+    if (not name):return
     else:
-        id = uf.find_song(song_name)
+        id = uf.find_song(name)
         if (not id):d_query5("The song does not exist.. please type again.")
         else : 
             rate=select_rating()
             if (not rate):return
-            else: uf.query5(int(id),int(rate))
+            else: 
+                uf.add_rating(int(id),int(rate))
+                note = "You have submit rate (" + rate + "/5) in \n" + name
+                uf.commit_db()
+                d_query5(note)
+
+
+def d_query7(note):
+    text = "Type the name of the album:"
+    title = "Select an album."
+    name = select_rel(text,title,note)
+    if (not name):return
+    else:
+        id = uf.find_album(name)
+        if (not id):d_query7("The album does not exist.. please type again.")
+        else : 
+            rate=select_rating()
+            if (not rate):return
+            else: 
+                uf.add_rating(int(id),int(rate))
+                note = "You have submit rate (" + rate + "/5) in \n" + name
+                uf.commit_db()
+                d_query6(note)
+
+def d_query6(note):
+    text = "Type the name of the video:"
+    title = "Select a video."
+    name = select_rel(text,title,note)
+    if (not name):return
+    else:
+        id = uf.find_video(name)
+        if (not id):d_query6("The video does not exist.. please type again.")
+        else : 
+            rate=select_rating()
+            if (not rate):return
+            else: 
+                uf.add_rating(int(id),int(rate))
+                note = "You have submit rate (" + rate + "/5) in \n" + name
+                uf.commit_db()
+                d_query7(note)
 
 def starting_window():
-    query1 = "Top 10 video."
-    query2 = "Most popular videos of specific genre."
+    query1 = "Top 10 most viewed videos."
     query3 = "Top aritsts."
+    query2 = "Most popular videos of specific genre."
     query4 = "Select a song and get back relative songs to this song."
-    query5 = "Add a rating to song."
-    query6 = "Add a rating to video."
-    query7 = "Add a rating to album."
-    
+    text1 = sg.Text("Rate a:")
+    query5 = ["Rate a:",["song","video","album"]]
+
+
     layout =    [
+                    [sg.Button(query3)],
                     [sg.Button(query1)],
                     [sg.Button(query2)],
-                    [sg.Button(query3)],
                     [sg.Button(query4)],
-                    [sg.Button(query5)],
-                    [sg.Button(query6)],
-                    [sg.Button(query7)],
+                    [text1,sg.ButtonMenu("    ",menu_def=query5)],
                     [sg.Cancel(button_color="red")]
                 ]
 
@@ -187,19 +229,13 @@ def starting_window():
             window.hide()
             d_query4("")
             window.un_hide()
-        elif event == query5:
+        elif event == 0:
             window.hide()
-            d_query5("")
+            if values[0] == "song": d_query5("")
+            elif values[0] == "video": d_query6("")
+            elif values[0] == "album": d_query7("")   
             window.un_hide()
-        # elif event == query6:
-        #     window.hide()
-        #     d_query6()
-        #     window.un_hide()
-        # elif event == query7:
-        #     window.hide()
-        #     d_query7()
-        #     window.un_hide()
-
+    uf.close_db()
     window.close()
 
 

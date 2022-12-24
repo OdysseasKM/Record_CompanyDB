@@ -96,3 +96,6 @@ insert into rating (stars, rel_id) values (4,12);
 insert into rating (stars, rel_id) values (1,12);
 insert into rating (stars, rel_id) values (4,12);
 insert into rating (stars, rel_id) values (4,12);
+
+insert into RELEASE (artist_id, rel_id, r_date, release_title, genre_id) values (4, 13, "10/10/2000", "first album", 3);
+insert into album (album_id,a_name) values (13,"first album");

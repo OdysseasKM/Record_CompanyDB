@@ -1,10 +1,16 @@
 import sqlite3
 
 def open_db():
+    global cursor,db
     db = sqlite3.connect('record-company.db')
-    global cursor
     cursor = db.cursor()
 
+def commit_db():
+    db.commit()
+
+def close_db():
+    db.commit()
+    cursor.close()
 
 # 1. Τα 10 πιο δημοφιλή βίντεο (βάση views)
 def query1():
@@ -95,6 +101,24 @@ def find_song(song_name):
     if (len(result)==0):return False
     return result[0][0]
 
+def find_album(album_name):
+    sql = """select album.album_id, release.release_title
+            from album join release on album_id = rel_id
+            where release_title = ?"""
+    cursor.execute(sql,(album_name,))
+    result = cursor.fetchall()
+    if (len(result)==0):return False
+    return result[0][0]
+
+def find_video(album_name):
+    sql = """select video.video_id, release.release_title
+            from video join release on video_id = rel_id
+            where release_title = ?"""
+    cursor.execute(sql,(album_name,))
+    result = cursor.fetchall()
+    if (len(result)==0):return False
+    return result[0][0]
+
 # 10. Επιλέγοντας ένα τραγούδι ή ενα άλμπουμ να εμφανίζονται στον χρήστη 5 προτεινόμενα τραγούδια η άλμπουμ (βασισμένα στο είδος και στο rating) 
 def query4(song_id):
     if (song_id!=-1):
@@ -131,6 +155,6 @@ def query3():
     result = cursor.fetchall()
     return result
 
-def query5(id,stars):
+def add_rating(id,stars):
     sql = """insert into rating (stars, rel_id) values (?,?);"""
-    cursor.execute(sql)
+    cursor.execute(sql,(stars,id))
