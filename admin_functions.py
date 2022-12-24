@@ -224,7 +224,7 @@ def artist_profit(name):
     WHERE ARTIST.nickname=?
     GROUP BY ARTIST.nickname
     ORDER BY ESODA
-    LIMIT 4;"""
+    LIMIT 3;"""
     print(cursor.execute(sql,(name,)))
     
 def studios():

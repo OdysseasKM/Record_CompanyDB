@@ -113,7 +113,7 @@ def add_format_window():
                     [sg.Submit(key="-SUMBIT-",font=("Courier",18))],[sg.VPush()],
                     [sg.Cancel(button_color="red")]
                 ]
-                
+
     window = sg.Window("Add Artist Window", layout, modal=True)
     event, values = window.read()
 
@@ -126,7 +126,6 @@ def add_format_window():
             adm.add_format(values[0], 2, cost=values[1])
         elif values["Digital"]==True:
             adm.add_format(values[0], 3)
-
         window.close()
         popup_window()
 
