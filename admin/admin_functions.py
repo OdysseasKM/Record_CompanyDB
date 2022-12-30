@@ -2,7 +2,7 @@ import sqlite3
 import datetime 
 
 sql = ""
-db = sqlite3.connect('record_db.db')
+db = sqlite3.connect('record-company.db')
 cursor = db.cursor()
 
 def find_all(table):

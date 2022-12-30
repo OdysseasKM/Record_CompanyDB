@@ -80,11 +80,13 @@ def select_rating():
     
     button1 = sg.ButtonMenu("Stars", menu_def=stars)
     button2 = sg.Button('OK')
-    text1 = sg.Text("Please select a rate.")
+    text1 = sg.Text("Please select a rate:")
+    text2 = sg.Text('Stars: \n1 -  Poor\n2 -  Below average\n3 -  Good\n4 -  Very good\n5 -  Excellent')
     button3 = sg.Cancel("Exit",button_color="red")
 
     layout = [
         [text1,button1,button2],
+        [text2],
         [button3]
     ]
 
