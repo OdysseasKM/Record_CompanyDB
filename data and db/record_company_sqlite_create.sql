@@ -54,37 +54,6 @@ CREATE TABLE ALBUM (
     ON DELETE CASCADE
 );
 
-DROP TABLE IF EXISTS VIDEO;
-CREATE TABLE VIDEO (
-	video_id integer NOT NULL,
-	duration time,
-	PRIMARY KEY (video_id)
-	FOREIGN KEY (video_id)
-    REFERENCES RELEASE(rel_id)
-    ON DELETE CASCADE
-);
-
-DROP TABLE IF EXISTS SONG;
-CREATE TABLE SONG (
-	song_id integer NOT NULL,
-	album_id integer,
-	duration time,
-	video_id time,
-	studio_id integer,
-	lyrics_language varchar,
-	PRIMARY KEY (song_id),
-
-	FOREIGN KEY (song_id)
-    REFERENCES RELEASE(rel_id)
-    ON DELETE CASCADE,
-
-	FOREIGN KEY (album_id)
-	REFERENCES ALBUM(album_id)
-    ON DELETE CASCADE,
-
-	FOREIGN KEY (video_id)
-    REFERENCES VIDEO(video_id)
-);
 
 DROP TABLE IF EXISTS INDIVIDUAL;
 CREATE TABLE INDIVIDUAL (
@@ -179,6 +148,45 @@ CREATE TABLE DIGITAL (
 	ON DELETE CASCADE
 );
 
+DROP TABLE IF EXISTS VIDEO;
+CREATE TABLE VIDEO (
+    video_id integer NOT NULL,
+    song_id integer NOT NULL,
+    duration time,
+    PRIMARY KEY (video_id)
+    FOREIGN KEY (video_id)
+    REFERENCES RELEASE(rel_id)
+    ON DELETE CASCADE
+    FOREIGN KEY (song_id)
+    REFERENCES SONG(song_id)
+);
+
+DROP TABLE IF EXISTS SONG;
+CREATE TABLE SONG (
+    song_id integer NOT NULL,
+    rel_id integer ,
+    album_id integer,
+    duration time,
+    studio_id integer,
+    lyrics_language varchar,
+    title varchar,
+    PRIMARY KEY (song_id),
+
+    FOREIGN KEY (rel_id)
+    REFERENCES RELEASE(rel_id)
+    ON DELETE CASCADE,
+
+    FOREIGN KEY (album_id)
+    REFERENCES ALBUM(album_id)
+    ON DELETE CASCADE
+);
+DROP TABLE IF EXISTS USER;
+CREATE TABLE USER (
+    username varchar NOT NULL,
+    password varchar,
+    is_admin boolean,
+    PRIMARY KEY (username)
+);
 
 
 

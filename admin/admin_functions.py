@@ -40,7 +40,7 @@ def add_artist(name, country):
     db.commit()
 
     
-def add_release(art_name, name, option, genre, language="", Format="", duration=100, writer_ssn="11", cost=0, Fname="", Lname="", studio_id=0):
+def add_release(art_name, name, option, genre, language="", Format="", duration=100, song_id=0, cost=0, studio_id=0, song_name=""):
 
     date = datetime.date.today()
     sql="""SELECT MAX(rel_id)
@@ -69,9 +69,9 @@ def add_release(art_name, name, option, genre, language="", Format="", duration=
     if option == "Album":
         add_album(max_id, name)
     elif option == "Video":
-        add_video(max_id, duration)
+        add_video(max_id, song_name, duration)
     elif option == "Single":
-        add_song(max_id, None, duration, None, studio_id, language)
+        add_song(max_id, None, duration, studio_id, language, name)
 
     if Format == "Vinyl":
         add_format(max_id, 1, cost)
@@ -90,17 +90,33 @@ def add_album(idn, name):
     VALUES(?, ?);"""
     cursor.execute(sql,(idn, name))
 
-def add_video(idn, duration):
+def add_video(idn, song_name, duration):
+
+    sql = """SELECT song_id
+    FROM SONG
+    WHERE SONG.name= ?;"""
+    song_id = cursor.execute(sql, (song_name,)).fetchone()[0]
 
     sql="""INSERT INTO VIDEO
-    VALUES(?, ?);"""
-    cursor.execute(sql,(idn, duration))
+    VALUES(?, ?, ?);"""
+    cursor.execute(sql,(idn, song_id, duration))
 
-def add_song(idn, album_id, duration, video_id, studio_id, language):
+def add_song(rel_id, album_name, duration, studio_id, language, name):
+
+    sql="""SELECT MAX(song_id)
+    FROM SONG;"""
+    max_id=cursor.execute(sql).fetchone()[0]
+    max_id += 1
+
+    sql = """SELECT rel_id
+    FROM RELEASE
+    WHERE RELEASE.release_title= ?;"""
+    album_id = cursor.execute(sql, (album_name,)).fetchone()[0]
 
     sql="""INSERT INTO SONG
-    VALUES(?, ?, ?, ?, ?, ?);"""
-    cursor.execute(sql,(idn, album_id, duration, video_id, studio_id, language))
+    VALUES(?, ?, ?, ?, ?, ?, ?);"""
+    cursor.execute(sql,(max_id, rel_id, album_id, duration, studio_id, language, name))
+    db.commit()
 
 def add_format(rel_id, option, cost=0):
 
@@ -147,13 +163,19 @@ def add_contributor(release_name, ssn, fname, lname, role):
     WHERE RELEASE.release_title= ?;"""
     idn = cursor.execute(sql, (release_name,)).fetchone()[0]
 
-    sql="""INSERT INTO CONTRIBUTOR
-    VALUES(?, ?, ?);"""
-    cursor.execute(sql,(lname, fname, ssn))
-
     sql="""INSERT INTO CONTIBUTS_IN
     VALUES(?, ?, ?);"""
     cursor.execute(sql,(ssn, idn, role))
+
+    sql="""SELECT *
+        FROM CONTRIBUTOR
+        WHERE ssn=?;"""
+    cursor.execute(sql,(ssn,))
+    result = cursor.fetchall()
+    if len(result) == 0:
+        sql="""INSERT INTO CONTRIBUTOR
+        VALUES(?, ?, ?);"""
+        cursor.execute(sql,(lname, fname, ssn))
 
     db.commit()
 
@@ -199,7 +221,6 @@ def check_genre(g_name):
         WHERE g_name=?;"""
     cursor.execute(sql,(g_name,))
     result = cursor.fetchall()
-    print(len(result))
     return (len(result))
 
 def annual_revenue(year):
@@ -272,3 +293,43 @@ def add_individual(ssn, fname, lname, art_name):
     VALUES(?, ?, ?, ?);"""
     cursor.execute(sql,(ssn, artist_id, fname, lname))
     db.commit()
+
+def register_check(username, password):
+
+    sql="""SELECT *
+        FROM USER
+        WHERE username=?;"""
+    cursor.execute(sql,(username,))
+    result = cursor.fetchall()
+    if len(result) != 0:
+        return 0
+    else:
+        sql="""INSERT INTO USER
+        VALUES(?, ?, 0);"""
+        cursor.execute(sql,(username, password))
+        db.commit()
+
+def login_check(username, password):
+
+    sql="""SELECT *
+        FROM USER
+        WHERE username=? AND password=?;"""
+    cursor.execute(sql,(username, password))
+    result = cursor.fetchall()
+
+    if len(result) == 0:
+        return 0 # user doesnt exist
+    else: 
+        sql="""SELECT is_admin
+        FROM USER
+        WHERE username=? AND password=?;"""
+        cursor.execute(sql,(username, password))
+        result = cursor.fetchone()
+        print(result[0])
+        if result[0]==0:
+            return 1 # user is not admin
+        else:
+            return 2 # user is admin
+
+
+
