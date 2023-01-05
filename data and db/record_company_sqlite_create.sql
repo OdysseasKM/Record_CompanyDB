@@ -47,7 +47,6 @@ CREATE TABLE FEATURE_IN (
 DROP TABLE IF EXISTS ALBUM;
 CREATE TABLE ALBUM (
 	album_id integer NOT NULL,
-	a_name varchar NOT NULL,
 	PRIMARY KEY (album_id),
 	FOREIGN KEY (album_id)
 	REFERENCES RELEASE(rel_id)
@@ -79,9 +78,14 @@ CREATE TABLE STUDIO (
 DROP TABLE IF EXISTS RATING;
 CREATE TABLE RATING (
 	stars integer NOT NULL,
-	rel_id integer NOT NULL,
-	FOREIGN KEY (rel_id)
-	REFERENCES RELEASE(rel_id)
+	song_id integer,
+	video_id integer,
+	FOREIGN KEY (song_id)
+	REFERENCES SONG(song_id)
+    ON DELETE CASCADE
+
+	FOREIGN KEY (video_id)
+	REFERENCES VIDEO(video_id)
     ON DELETE CASCADE
 );
 
@@ -120,7 +124,7 @@ CREATE TABLE FORMAT (
 );
 
 DROP TABLE IF EXISTS VINYL;
-CREATE TABLE VYNIL (
+CREATE TABLE VINYL (
 	format_id integer NOT NULL, 
 	sales integer,
 	cost float,

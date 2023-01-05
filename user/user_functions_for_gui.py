@@ -83,19 +83,11 @@ def query6():
         result = cursor.fetchall()
         print(result)
 
-def find_song_with_id(song_name = ""):
-    if song_name == "": song_name = input("select song : ")
-    id = int(input("type an id for song: "))
-    sql = """select song.song_id, release.release_title
-            from song join release on song_id = rel_id
-            where release_title = ? and rel_id = ?"""
-    cursor.execute(sql,(song_name,id))
-    return id
 
 def find_song(song_name):
-    sql = """select song.song_id, release.release_title
-            from song join release on song_id = rel_id
-            where release_title = ?"""
+    sql = """select song_id, title
+            from song
+            where title = ?"""
     cursor.execute(sql,(song_name,))
     result = cursor.fetchall()
     if (len(result)==0):return False
@@ -130,27 +122,30 @@ def query4(song_id):
 			    s.song_id = ?"""
         cursor.execute(sql,(song_id,))
         genre = int(cursor.fetchall()[0][0])
-        sql ="""select r.release_title, a.nickname,g.g_name, round ( avg(rate.stars) ,2 ) as avg_stars
-                from release as r join artist as a on r.artist_id=a.id , song as s, rating as rate, genre as g
-                where r.genre_id = ? and 
-                r.rel_id = s.song_id and
-                r.genre_id = g.g_id and
-                s.song_id != ? 
-                group by r.rel_id
-                order by avg_stars DESC
-                limit (5);"""
-        cursor.execute(sql,(genre,song_id))
+        sql ="""select s.title, a.nickname, g.g_name, round ( avg(rate.stars) ,2 ) as avg_stars
+            from artist as a, release as r, genre as g, song as s, album as al, RATING as rate
+            where s.song_id!=? AND
+            a.id = r.artist_id and
+            s.rel_id = r.rel_id or (s.album_id = al.album_id and r.rel_id = al.album_id) AND
+            r.genre_id = ? and
+            rate.song_id = s.song_id 
+            group by s.song_id
+            order by avg_stars DESC
+            limit (10);
+            """
+        cursor.execute(sql,(song_id,genre))
         result = cursor.fetchall()
         return result
 
-# 4. Artist με το καλύτερο μέσο όρο rating στα releases.
+# 4. Artist με το καλύτερο μέσο όρο rating στα songs.
 def query3():
     sql = """select a.nickname, Round (avg(rate.stars), 2) as avg_rate
-            from artist as a, release as r, RATING as rate
-            where a.id = r.artist_id AND
-            r.rel_id = rate.rel_id
-            group by artist_id
-            order by avg_rate DESC"""
+                from artist as a, release as r, album as al, song as s, rating as rate
+                where a.id = r.artist_id AND
+                ((r.rel_id = al.album_id and s.album_id = al.album_id) or (r.rel_id = s.rel_id) ) AND
+                s.song_id = rate.song_id 
+                group by artist_id
+                order by avg_rate DESC"""
     cursor.execute(sql)
     result = cursor.fetchall()
     return result

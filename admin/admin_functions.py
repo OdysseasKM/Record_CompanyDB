@@ -294,42 +294,8 @@ def add_individual(ssn, fname, lname, art_name):
     cursor.execute(sql,(ssn, artist_id, fname, lname))
     db.commit()
 
-def register_check(username, password):
 
-    sql="""SELECT *
-        FROM USER
-        WHERE username=?;"""
-    cursor.execute(sql,(username,))
-    result = cursor.fetchall()
-    if len(result) != 0:
-        return 0
-    else:
-        sql="""INSERT INTO USER
-        VALUES(?, ?, 0);"""
-        cursor.execute(sql,(username, password))
-        db.commit()
 
-def login_check(username, password):
-
-    sql="""SELECT *
-        FROM USER
-        WHERE username=? AND password=?;"""
-    cursor.execute(sql,(username, password))
-    result = cursor.fetchall()
-
-    if len(result) == 0:
-        return 0 # user doesnt exist
-    else: 
-        sql="""SELECT is_admin
-        FROM USER
-        WHERE username=? AND password=?;"""
-        cursor.execute(sql,(username, password))
-        result = cursor.fetchone()
-        print(result[0])
-        if result[0]==0:
-            return 1 # user is not admin
-        else:
-            return 2 # user is admin
 
 
 

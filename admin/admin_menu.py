@@ -1,5 +1,5 @@
 import PySimpleGUI as sg
-import admin_functions as adm
+import admin.admin_functions as adm
 import sqlite3
 import datetime
 
@@ -443,68 +443,12 @@ def popup_window():
 
     sg.popup("Your action has been completed")
 
-def first_window():
 
-    layout =    [
-                    [sg.Button("Login", size=(20,4))],
-                    [sg.Button("Register",  size=(20,4))],
-                ]
-    window	=	sg.Window("First Window", layout, size=(500,500))
-    event, values=window.read()	
-    print(event)
-    window.close()
-    if event == 'Login':
-        login_window()
-        
-    elif event == 'Register':
-        register_window()
-
-def login_window():
-
-    layout =    [
-                    [sg.Text("Please Enter the following information to login", font=("Courier",18))],[sg.VPush()],
-                    [sg.Text("Username",size=(15,1),font=("Courier",18)), sg.InputText(font=("Courier",18))], [sg.VPush()],
-                    [sg.Text("Password",size=(15,1),font=("Courier",18)), sg.InputText(password_char="*", font=("Courier",18))], [sg.VPush()],
-                    [sg.Submit(key="-SUMBIT-",font=("Courier",18))],[sg.VPush()],
-                    [sg.Cancel(button_color="red")]
-                ]
-    window = sg.Window("Login Window", layout, modal=True)
-    event,values = window.read()
-
-    result = adm.login_check(values[0], values[1])
-    print(result)
-    if result == 0:
-        pass
-    elif result == 1:
-        window.close()
-        user_window()
-
-    elif result == 2:
-        window.close()
-        admin_window()
-
-def register_window():
-
-    layout =    [
-                    [sg.Text("Please Enter the following information to login", font=("Courier",18))],[sg.VPush()],
-                    [sg.Text("Username",size=(15,1),font=("Courier",18)), sg.InputText(font=("Courier",18))], [sg.VPush()],
-                    [sg.Text("Password",size=(15,1),font=("Courier",18)), sg.InputText(password_char="*", font=("Courier",18))], [sg.VPush()],
-                    [sg.Submit(key="-SUMBIT-",font=("Courier",18))],[sg.VPush()],
-                    [sg.Cancel(button_color="red")]
-                ]
-    window = sg.Window("Register Window", layout, modal=True)
-    event,values = window.read()
-    check=adm.register_check(values[0], values[1])
-    if check == 0:
-        pass
-    else:
-        login_window()
 
 def main():
-
     db = sqlite3.connect('record_db.db')
     cursor = db.cursor()
-    first_window()
+    admin_window()
   
 
 if __name__ == '__main__':

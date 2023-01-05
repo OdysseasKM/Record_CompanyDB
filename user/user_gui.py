@@ -1,5 +1,5 @@
 import PySimpleGUI as sg
-import user_functions_for_gui as uf
+import user.user_functions_for_gui as uf
 
 my_window_size = [500,300] #width, height
 my_font = 'Helvetica 16'
@@ -157,23 +157,6 @@ def d_query5(note):
                 d_query5(note)
 
 
-def d_query7(note):
-    text = "Type the name of the album:"
-    title = "Select an album."
-    name = select_rel(text,title,note)
-    if (not name):return
-    else:
-        id = uf.find_album(name)
-        if (not id):d_query7("The album does not exist.. please type again.")
-        else : 
-            rate=select_rating()
-            if (not rate):return
-            else: 
-                uf.add_rating(int(id),int(rate))
-                note = "You have submit rate (" + rate + "/5) in \n" + name
-                uf.commit_db()
-                d_query6(note)
-
 def d_query6(note):
     text = "Type the name of the video:"
     title = "Select a video."
@@ -189,15 +172,15 @@ def d_query6(note):
                 uf.add_rating(int(id),int(rate))
                 note = "You have submit rate (" + rate + "/5) in \n" + name
                 uf.commit_db()
-                d_query7(note)
+                d_query6(note)
 
-def starting_window():
+def user_window():
     query1 = "Top 10 most viewed videos."
     query3 = "Top aritsts."
     query2 = "Most popular videos of specific genre."
     query4 = "Select a song and get back relative songs to this song."
     text1 = sg.Text("Rate a:")
-    query5 = ["Rate a:",["song","video","album"]]
+    query5 = ["Rate a:",["song","video"]]
 
 
     layout =    [
@@ -205,7 +188,7 @@ def starting_window():
                     [sg.Button(query1)],
                     [sg.Button(query2)],
                     [sg.Button(query4)],
-                    [text1,sg.ButtonMenu("    ",menu_def=query5)],
+                    [text1,sg.ButtonMenu("       ",menu_def=query5)],
                     [sg.Cancel(button_color="red")]
                 ]
 
@@ -234,20 +217,18 @@ def starting_window():
         elif event == 0:
             window.hide()
             if values[0] == "song": d_query5("")
-            elif values[0] == "video": d_query6("")
-            elif values[0] == "album": d_query7("")   
+            elif values[0] == "video": d_query6("") 
             window.un_hide()
     uf.close_db()
     window.close()
 
-
 def main():
     uf.open_db()
-    starting_window()
+    user_window()
   
 
-if __name__ == '__main__':
-    main()
+# if __name__ == '__main__':
+#     main()
 
 
 
