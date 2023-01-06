@@ -52,7 +52,7 @@ def artist_data():
         if (exists==False):
             #new aritst
             nickname = sheet.cell(row=rowNum, column=3).value
-            r = random.randint(1,186)
+            r = random.randint(1,35)
             country = sheet.cell(row=r, column = 5).value
             #print(str(artist_id)+ " "+ nickname+ " "+ country)
             sql = """INSERT INTO ARTIST
@@ -87,15 +87,15 @@ def add_format(release_id,format_id,vinyl,cd,digital):
     db.commit()
 
 def add_rating_for_song(song_id):
-    for j in range(random.randint(0,5)):
-        rate = random.randint(0,5)
+    for j in range(random.randint(1,5)):
+        rate = random.randint(1,5)
         sql = """INSERT INTO RATING (stars,song_id) VALUES(?, ?);"""
         cursor.execute(sql,(rate,song_id))
         db.commit() 
 
 def add_rating_for_video(video_id):
-    for j in range(random.randint(0,5)):
-        rate = random.randint(0,5)
+    for j in range(random.randint(1,5)):
+        rate = random.randint(1,5)
         sql = """INSERT INTO RATING (stars,video_id) VALUES(?, ?);"""
         cursor.execute(sql,(rate,video_id))
         db.commit() 
