@@ -67,11 +67,11 @@ def add_release(art_name, name, option, genre, language="", Format="", duration=
 
 
     if option == "Album":
-        add_album(max_id, name)
+        add_album(max_id)
     elif option == "Video":
         add_video(max_id, song_name, duration)
     elif option == "Single":
-        add_song(max_id, None, duration, studio_id, language, name)
+        add_single(max_id, duration, studio_id, language, name)
 
     if Format == "Vinyl":
         add_format(max_id, 1, cost)
@@ -84,11 +84,10 @@ def add_release(art_name, name, option, genre, language="", Format="", duration=
     db.commit()
 
 
-def add_album(idn, name):
-
+def add_album(idn):
     sql="""INSERT INTO ALBUM
-    VALUES(?, ?);"""
-    cursor.execute(sql,(idn, name))
+    VALUES(?);"""
+    cursor.execute(sql,(idn,))
 
 def add_video(idn, song_name, duration):
 
@@ -100,6 +99,18 @@ def add_video(idn, song_name, duration):
     sql="""INSERT INTO VIDEO
     VALUES(?, ?, ?);"""
     cursor.execute(sql,(idn, song_id, duration))
+
+def add_single(rel_id, duration, studio_id, language, name):
+
+    sql="""SELECT MAX(song_id)
+    FROM SONG;"""
+    max_id=cursor.execute(sql).fetchone()[0]
+    max_id += 1
+
+    sql="""INSERT INTO SONG
+    VALUES(?, ?, ?, ?, ?, ?, ?);"""
+    cursor.execute(sql,(max_id, rel_id, None, duration, studio_id, language, name))
+    db.commit()
 
 def add_song(rel_id, album_name, duration, studio_id, language, name):
 
@@ -117,6 +128,7 @@ def add_song(rel_id, album_name, duration, studio_id, language, name):
     VALUES(?, ?, ?, ?, ?, ?, ?);"""
     cursor.execute(sql,(max_id, rel_id, album_id, duration, studio_id, language, name))
     db.commit()
+
 
 def add_format(rel_id, option, cost=0):
 

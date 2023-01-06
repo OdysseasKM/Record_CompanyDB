@@ -1,7 +1,11 @@
 import PySimpleGUI as sg
-import admin.admin_functions as adm
+import admin_functions as adm
 import sqlite3
 import datetime
+
+my_window_size = [800,350] #width, height
+my_font = 'Helvetica 22'
+
 
 def admin_window():
 
@@ -10,16 +14,17 @@ def admin_window():
     inspect_list = ["Inspect", ["Artist", "Release", "Studio", "Contributor", "Individual"]]
 
     layout =    [
-                    [sg.ButtonMenu("Insert", menu_def=add_list , size=(20,4))],
-                    [sg.ButtonMenu("Delete", menu_def=delete_list , size=(20,4))],
-                    [sg.ButtonMenu("Inspect", menu_def=inspect_list , size=(20,4))],
-                    [sg.Button("Annual Revenue", size=(20,4))],
-                    [sg.Button("Studios With the most recordings",  size=(20,4))],
+                    [sg.Text("Insert  "),sg.ButtonMenu("       ", menu_def=add_list)],
+                    [sg.Text("Delete "),sg.ButtonMenu("       ", menu_def=delete_list)],
+                    [sg.Text("Inspect"),sg.ButtonMenu("       ", menu_def=inspect_list)],
+                    [sg.Button("Annual Revenue")],
+                    [sg.Button("Studios With the most recordings")],
                     [sg.Cancel(button_color="red")]
                 ]
-    window	=	sg.Window("Data	Entry Form", layout, size=(500,500))
+    window	=	sg.Window("Data	Entry Form", layout, font=my_font,size=my_window_size)
     event, values=window.read()	
     window.close()
+
     if event == "Cancel":
         window.close()
 
@@ -27,53 +32,60 @@ def admin_window():
  
         if values[0] == "Artist":
             add_artist_window()
-            
+            admin_window()
+
         elif values[0] == "Release":
             add_release_window()
+            admin_window()
 
         elif values[0] == "Studio":
             add_studio_window()
-            
+            admin_window()
+
         elif values[0] == "Format":
             add_format_window()
+            admin_window()
 
         elif values[0] == "Individual":
             add_individual_window()
-            
+            admin_window()
 
     elif event == 1:
-
         if values[1] == "Artist":
             name = delete_artist_window()
             adm.delete_artist(name)
-            popup_window()
+            admin_window()
 
         elif values[1] == "Release":
             idn = delete_release_window()
             adm.delete_release(idn)
-            popup_window()
+            admin_window()
 
     elif event==2:
  
         if values[2] == "Artist":
             results=adm.find_all("Artist")
             headings=['Nickname', 'Country']
-            print_window(headings, results)
-            
+            print_window(headings, results, [25,25])
+            admin_window()
+
         elif values[2] == "Release":
             results=adm.find_all("Release")
             headings=['Release_title', 'Artist']
-            print_window(headings, results)
+            print_window(headings, results, [25,25])
+            admin_window()
 
         elif values[2] == "Studio":
             results=adm.find_all("Studio")
             headings=['Studio_id', 'Town']
-            print_window(headings, results)
+            print_window(headings, results, [25,25])
+            admin_window()
 
         elif values[2] == "Contributor":
             results=adm.find_all("Contributor")
             headings=['Ssn', 'First Name', 'Last Name', 'Role']
-            print_window(headings, results)
+            print_window(headings, results, [10,15,15,10])
+            admin_window()
 
     elif event == 3:
         year=year_window()
@@ -84,13 +96,12 @@ def admin_window():
 def add_artist_window():
 
     layout =    [
-                    [sg.Text('Please Enter the following information', font=("Courier",18))],[sg.VPush()],
-                    [sg.Text('Artist Nickname',	size=(15,1),font=("Courier",18)), sg.InputText(font=("Courier",	18))], [sg.VPush()],	
-                    [sg.Text('Artist Country',size=(15,1),font=("Courier",18)), sg.InputText(font=("Courier",18))], [sg.VPush()],
-                    [sg.Submit(key="-SUMBIT-",font=("Courier",18))],[sg.VPush()],
-                    [sg.Cancel(button_color="red")]
+                    [sg.Text('Please Enter the following information', font=my_font)],[sg.VPush()],
+                    [sg.Text('Artist Nickname',size=(12,1),font=my_font), sg.InputText(font=my_font)], [sg.VPush()],	
+                    [sg.Text('Artist Country',size=(12,1),font=my_font), sg.InputText(font=my_font)], [sg.VPush()],
+                    [sg.Submit(key="-SUMBIT-",button_color="green",font=my_font),sg.VPush(),sg.Cancel(button_color="red",font=my_font)]
                 ]
-    window = sg.Window("Add Artist Window", layout, modal=True)
+    window = sg.Window("Add Artist Window", layout, font=my_font, size = my_window_size, resizable=True, modal=True)
     event, values = window.read()
 
     if event == "Cancel":
@@ -98,23 +109,21 @@ def add_artist_window():
     if	event	==	"-SUMBIT-":
         adm.add_artist(values[0], values[1])
         window.close()
-        popup_window()
 
 def add_format_window():
 
     layout =    [
-                    [sg.Text('Please Enter the following information', font=("Courier",18))],[sg.VPush()],
-                    [sg.Text('Release Id',	size=(15,1),font=("Courier",18)), sg.InputText(font=("Courier",	18))], [sg.VPush()],	
-                    [sg.Text('Price',size=(15,1),font=("Courier",18)), sg.InputText(font=("Courier",18))], [sg.VPush()],
-                    [sg.Text('Please Choose the Format', font=("Courier",18))],[sg.VPush()],
+                    [sg.Text('Please Enter the following information', font=my_font)],[sg.VPush()],
+                    [sg.Text('Release Id',size=(12,1),font=my_font), sg.InputText(font=my_font)], [sg.VPush()],	
+                    [sg.Text('Price',size=(12,1),font=my_font), sg.InputText(font=my_font)], [sg.VPush()],
+                    [sg.Text('Please Choose the Format', font=my_font)],[sg.VPush()],
                     [sg.CB("Vinyl", key="Vinyl")],
                     [sg.CB("CD", key="CD")],
                     [sg.CB("Digital", key="Digital")],
-                    [sg.Submit(key="-SUMBIT-",font=("Courier",18))],[sg.VPush()],
-                    [sg.Cancel(button_color="red")]
+                    [sg.Submit(key="-SUMBIT-",button_color="green",font=my_font) , sg.VPush(),sg.Cancel(button_color="red",font=my_font)]
                 ]
 
-    window = sg.Window("Add Artist Window", layout, modal=True)
+    window = sg.Window("Add Format Window", layout, font=my_font, size = my_window_size, resizable=True, modal=True)
     event, values = window.read()
 
     if event == "Cancel":
@@ -127,20 +136,19 @@ def add_format_window():
         elif values["Digital"]==True:
             adm.add_format(values[0], 3)
         window.close()
-        popup_window()
+
 
 def add_studio_window():
 
     layout =    [
-                    [sg.Text('Please Enter the following information', font=("Courier",18))],[sg.VPush()],
-                    [sg.Text('Street Name',size=(15,1),font=("Courier",18)), sg.InputText(font=("Courier",18))], [sg.VPush()],
-                    [sg.Text('Number',size=(15,1),font=("Courier",18)), sg.InputText(font=("Courier",18))], [sg.VPush()],
-                    [sg.Text('Town',size=(15,1),font=("Courier",18)), sg.InputText(font=("Courier",18))], [sg.VPush()],
-                    [sg.Text('Country',size=(15,1),font=("Courier",18)), sg.InputText(font=("Courier",18))], [sg.VPush()],
-                    [sg.Submit(key="-SUMBIT-",font=("Courier",18))],[sg.VPush()],
-                    [sg.Cancel(button_color="red")]
+                    [sg.Text('Please Enter the following information', font=my_font)],[sg.VPush()],
+                    [sg.Text('Street Name',size=(12,1),font=my_font), sg.InputText(font=my_font)], [sg.VPush()],
+                    [sg.Text('Number',size=(12,1),font=my_font), sg.InputText(font=my_font)], [sg.VPush()],
+                    [sg.Text('Town',size=(12,1),font=my_font), sg.InputText(font=my_font)], [sg.VPush()],
+                    [sg.Text('Country',size=(12,1),font=my_font), sg.InputText(font=my_font)], [sg.VPush()],
+                    [sg.Submit(key="-SUMBIT-",button_color="green",font=my_font),sg.VPush(),sg.Cancel(button_color="red",font=my_font)]
                 ]
-    window = sg.Window("Add Artist Window", layout, modal=True)
+    window = sg.Window("Add Artist Window", layout, font=my_font, size = my_window_size, resizable=True, modal=True)
     event,values = window.read()	
 
     if event == "Cancel":
@@ -149,20 +157,19 @@ def add_studio_window():
         adm.add_studio(values[0], values[1], values[2], values[3])
         
         window.close()
-        popup_window()
+    
 
 def add_contributor_window(release_name):
 
     layout =    [
-                    [sg.Text('Please Enter the following information', font=("Courier",18))],[sg.VPush()],
-                    [sg.Text('Ssn',size=(15,1),font=("Courier",18)), sg.InputText(font=("Courier",18))], [sg.VPush()],
-                    [sg.Text('First Name',size=(15,1),font=("Courier",18)), sg.InputText(font=("Courier",18))], [sg.VPush()],
-                    [sg.Text('Last Name',size=(15,1),font=("Courier",18)), sg.InputText(font=("Courier",18))], [sg.VPush()],
-                    [sg.Text('Role',size=(15,1),font=("Courier",18)), sg.InputText(font=("Courier",18))], [sg.VPush()],
-                    [sg.Submit(key="-SUMBIT-",font=("Courier",18))],[sg.VPush()],
-                    [sg.Cancel(button_color="red")]
+                    [sg.Text('Please Enter the following information',font=my_font)],[sg.VPush()],
+                    [sg.Text('Ssn',size=(12,1),font=my_font), sg.InputText(font=my_font)], [sg.VPush()],
+                    [sg.Text('First Name',size=(12,1),font=my_font), sg.InputText(font=my_font)], [sg.VPush()],
+                    [sg.Text('Last Name',size=(12,1),font=my_font), sg.InputText(font=my_font)], [sg.VPush()],
+                    [sg.Text('Role',size=(12,1),font=my_font), sg.InputText(font=my_font)], [sg.VPush()],
+                    [sg.Submit(key="-SUMBIT-",font=my_font,button_color="green"),sg.VPush(),sg.Cancel(button_color="red",font=my_font)]
                 ]
-    window = sg.Window("Add Contributor Window", layout, modal=True)
+    window = sg.Window("Add Contributor Window", layout, font=my_font, size = my_window_size, resizable=True, modal=True)
     event,values = window.read()	
 
     if event == "Cancel":
@@ -171,18 +178,16 @@ def add_contributor_window(release_name):
         adm.add_contributor(release_name, values[0], values[1], values[2], values[3])
         
         window.close()
-        popup_window()
         add_contributor_window(release_name)
 
 def add_individual_window():
 
     layout =    [
-                    [sg.Text("Please Enter the following information", font=("Courier",18))],[sg.VPush()],
-                    [sg.Text("Artist Nickname",size=(15,1),font=("Courier",18)), sg.InputText(font=("Courier",18))], [sg.VPush()],
-                    [sg.Submit(key="-SUMBIT-",font=("Courier",18))],[sg.VPush()],
-                    [sg.Cancel(button_color="red")]
+                    [sg.Text("Please Enter the following information",font=my_font)],[sg.VPush()],
+                    [sg.Text("Artist Nickname",font=my_font), sg.InputText(font=my_font)], [sg.VPush()],
+                    [sg.Submit(key="-SUMBIT-",font=my_font,button_color="green"),sg.VPush(),sg.Cancel(button_color="red",font=my_font)]
                 ]
-    window = sg.Window("Duration Window", layout, modal=True)
+    window = sg.Window("Add Individual Window", layout, font=my_font, size = my_window_size, resizable=True, modal=True)
     event,values = window.read()
     
     if event == "Cancel":
@@ -191,19 +196,17 @@ def add_individual_window():
         window.close()
         values[1], values[2], values[3] = individual_details_window()
         adm.add_individual(values[1], values[2], values[3], values[0])
-        popup_window()
 
 def individual_details_window():
 
     layout =    [
-                    [sg.Text('Please Enter the following information', font=("Courier",18))],[sg.VPush()],
-                    [sg.Text('Ssn',size=(15,1),font=("Courier",18)), sg.InputText(font=("Courier",18))], [sg.VPush()],
-                    [sg.Text('First Name',size=(15,1),font=("Courier",18)), sg.InputText(font=("Courier",18))], [sg.VPush()],
-                    [sg.Text('Last Name',size=(15,1),font=("Courier",18)), sg.InputText(font=("Courier",18))], [sg.VPush()],
-                    [sg.Submit(key="-SUMBIT-",font=("Courier",18))],[sg.VPush()],
-                    [sg.Cancel(button_color="red")]
+                    [sg.Text('Please Enter the following information',font=my_font)],[sg.VPush()],
+                    [sg.Text('Ssn',size=(10,1),font=my_font), sg.InputText(font=my_font)], [sg.VPush()],
+                    [sg.Text('First Name',size=(10,1),font=my_font), sg.InputText(font=my_font)], [sg.VPush()],
+                    [sg.Text('Last Name',size=(10,1),font=my_font), sg.InputText(font=my_font)], [sg.VPush()],
+                    [sg.Submit(key="-SUMBIT-",button_color="green",font=my_font) , sg.VPush(),sg.Cancel(button_color="red")]
                 ]
-    window = sg.Window("Add Individual Window", layout, modal=True)
+    window = sg.Window("Add Individual Window", layout, font=my_font, size = my_window_size, resizable=True, modal=True)
     event,values = window.read()	
 
     if event == "Cancel":
@@ -212,34 +215,26 @@ def individual_details_window():
         window.close()
         return(values[0], values[1], values[2])
         
-        
-        
-
 def add_release_window():
-
-    layout =    [
-                    [sg.Text('Please Enter the following information', font=("Courier",18))],[sg.VPush()],
-                    [sg.Text('Artist Nickname',size=(15,1),font=("Courier",18)), sg.InputText(font=("Courier",18))], [sg.VPush()],
-                    [sg.Text('Release Name',size=(15,1),font=("Courier",18)), sg.InputText(font=("Courier",18))], [sg.VPush()],
-                    [sg.Text('Release Genre',size=(15,1),font=("Courier",18)), sg.InputText(font=("Courier",18))], [sg.VPush()],
-                    [sg.Text('Please Choose the Release Type', font=("Courier",18))],[sg.VPush()],
-                    [sg.CB("Album", key="Album")],
-                    [sg.CB("Video", key="Video")],
-                    [sg.CB("Single", key="Single")],
-                    [sg.Text('Please Choose the Format', font=("Courier",18))],[sg.VPush()],
-                    [sg.CB("Vinyl", key="Vinyl")],
-                    [sg.CB("CD", key="CD")],
-                    [sg.CB("Digital", key="Digital")],
-                    [sg.Submit(key="-SUMBIT-",font=("Courier",18))],[sg.VPush()],
-                    [sg.Cancel(button_color="red")]
+    my_font = 'Helvetica 16'
+    layout =    [ 
+                    [sg.Text('Please Enter the following information', font=my_font)],[sg.VPush()],
+                    [sg.Text('Artist Nickname',size=(12,1),font=my_font), sg.InputText(font=my_font)], [sg.VPush()],
+                    [sg.Text('Release Name',size=(12,1),font=my_font), sg.InputText(font=my_font)], [sg.VPush()],
+                    [sg.Text('Release Genre',size=(12,1),font=my_font), sg.InputText(font=my_font)], [sg.VPush()],
+                    [sg.Text('Choose the Release Type', font=my_font), sg.VPush(), sg.Text('        Choose the Format', font=my_font),sg.VPush()],
+                    [sg.CB("  Album \t\t\t", key="Album"), sg.CB("  Vinyl", key="Vinyl")],
+                    [sg.CB("  Video \t\t\t", key="Video"), sg.CB("  CD", key="CD")],
+                    [sg.CB("  Single\t\t\t", key="Single"),sg.CB("  Digital", key="Digital")],
+                    [sg.Submit(key="-SUMBIT-",font=my_font,button_color="green"),sg.VPush(),sg.Cancel(button_color="red",font=my_font)]
                 ]
-    window = sg.Window("Add Release Window", layout, modal=True)
+
+    window = sg.Window("Add Release Window",layout, font=my_font, size = my_window_size, resizable=True, modal=True)
     event, values = window.read()	
     if event == "Cancel":
         window.close()
     if	event	==	"-SUMBIT-":
         if values["Album"]==True:
-
             if values["Vinyl"]==True:
                 values[3]=price_window()
                 adm.add_release(values[0], values[1], "Album", values[2], Format="Vinyl", cost=values[3])
@@ -253,9 +248,6 @@ def add_release_window():
             window.close()
             song_window(values[1])
             
-            
-            
-
         elif values["Video"]==True:
             values[3]=duration_window()
             values[4]= videoclip_window()
@@ -274,18 +266,16 @@ def add_release_window():
             else:
                 adm.add_release(values[0], values[1], "Single", values[2], duration=values[3], studio_id=values[4], language=values[5])
         window.close()
-        add_contributor_window(values[1])
-        popup_window()
+        # add_contributor_window(values[1])
 
 def duration_window():
 
     layout =    [
-                    [sg.Text("Please Enter the following information", font=("Courier",18))],[sg.VPush()],
-                    [sg.Text("Duration(sec)",size=(15,1),font=("Courier",18)), sg.InputText(font=("Courier",18))], [sg.VPush()],
-                    [sg.Submit(key="-SUMBIT-",font=("Courier",18))],[sg.VPush()],
-                    [sg.Cancel(button_color="red")]
+                    [sg.Text("Please Enter the following information", font=my_font)],[sg.VPush()],
+                    [sg.Text("Duration(sec)",size=(15,1),font=my_font), sg.InputText(font=my_font)], [sg.VPush()],
+                    [sg.Submit(key="-SUMBIT-",button_color="green",font=my_font) , sg.VPush(),sg.Cancel(button_color="red")]
                 ]
-    window = sg.Window("Duration Window", layout, modal=True)
+    window = sg.Window("Duration Window",layout, font=my_font, size = my_window_size, resizable=True, modal=True)
     event,values = window.read()
     
     if event == "Cancel":
@@ -294,17 +284,14 @@ def duration_window():
         window.close()
         return values[0]
     
-    
-
 def price_window():
 
     layout =    [
-                    [sg.Text("Please Enter the following information", font=("Courier",18))],[sg.VPush()],
-                    [sg.Text("Format Price",size=(15,1),font=("Courier",18)), sg.InputText(font=("Courier",18))], [sg.VPush()],
-                    [sg.Submit(key="-SUMBIT-",font=("Courier",18))],[sg.VPush()],
-                    [sg.Cancel(button_color="red")]
+                    [sg.Text("Please Enter the following information",font=my_font)],[sg.VPush()],
+                    [sg.Text("Format Price",size=(15,1),font=my_font), sg.InputText(font=my_font)], [sg.VPush()],
+                    [sg.Submit(key="-SUMBIT-",button_color="green",font=my_font), sg.VPush(),sg.Cancel(button_color="red")]
                 ]
-    window = sg.Window("Price Window", layout, modal=True)
+    window = sg.Window("Price Window", layout, font=my_font, size = my_window_size, resizable=True, modal=True)
     event,values = window.read()
     
     if event == "Cancel":
@@ -316,12 +303,11 @@ def price_window():
 def videoclip_window():
 
     layout =    [
-                    [sg.Text("Please Enter the song's name for the videoclip", font=("Courier",18))],[sg.VPush()],
-                    [sg.Text("song name",size=(15,1),font=("Courier",18)), sg.InputText(font=("Courier",18))], [sg.VPush()],
-                    [sg.Submit(key="-SUMBIT-",font=("Courier",18))],[sg.VPush()],
-                    [sg.Cancel(button_color="red")]
+                    [sg.Text("Please Enter the song's name for the videoclip", font=my_font)],[sg.VPush()],
+                    [sg.Text("song name",size=(15,1),font=my_font), sg.InputText(font=my_font)], [sg.VPush()],
+                    [sg.Submit(key="-SUMBIT-",button_color="green",font=my_font), sg.VPush(),sg.Cancel(button_color="red")]
                 ]
-    window = sg.Window("Videoclip Window", layout, modal=True)
+    window = sg.Window("Videoclip Window", layout, font=my_font, size = my_window_size, resizable=True, modal=True)
     event,values = window.read()
     
     if event == "Cancel":
@@ -334,14 +320,13 @@ def videoclip_window():
 def single_window():
 
     layout =    [
-                    [sg.Text('Please Enter the following information', font=("Courier",18))],[sg.VPush()],
-                    [sg.Text('Duration(sec)',size=(15,1),font=("Courier",18)), sg.InputText(font=("Courier",18))], [sg.VPush()],
-                    [sg.Text('Studio Id',size=(15,1),font=("Courier",18)), sg.InputText(font=("Courier",18))], [sg.VPush()],
-                    [sg.Text('Language',size=(15,1),font=("Courier",18)), sg.InputText(font=("Courier",18))], [sg.VPush()],
-                    [sg.Submit(key="-SUMBIT-",font=("Courier",18))],[sg.VPush()],
-                    [sg.Cancel(button_color="red")]
+                    [sg.Text('Please Enter the following information', font=my_font)],[sg.VPush()],
+                    [sg.Text('Duration(sec)',size=(15,1),font=my_font), sg.InputText(font=my_font)], [sg.VPush()],
+                    [sg.Text('Studio Id',size=(15,1),font=my_font), sg.InputText(font=my_font)], [sg.VPush()],
+                    [sg.Text('Language',size=(15,1),font=my_font), sg.InputText(font=my_font)], [sg.VPush()],
+                    [sg.Submit(key="-SUMBIT-",button_color="green",font=my_font) , sg.VPush(),sg.Cancel(button_color="red")]
                 ]
-    window = sg.Window("Add Single Window", layout, modal=True)
+    window = sg.Window("Add Single Window", layout, font=my_font, size = my_window_size, resizable=True, modal=True)
     event,values = window.read()
 
     if event == "Cancel":
@@ -354,15 +339,14 @@ def single_window():
 def song_window(album_name):
 
     layout =    [
-                    [sg.Text('Please Enter the following information to add a song to the album', font=("Courier",18))],[sg.VPush()],
-                    [sg.Text('Name',size=(15,1),font=("Courier",18)), sg.InputText(font=("Courier",18))], [sg.VPush()],
-                    [sg.Text('Duration(sec)',size=(15,1),font=("Courier",18)), sg.InputText(font=("Courier",18))], [sg.VPush()],
-                    [sg.Text('Studio Id',size=(15,1),font=("Courier",18)), sg.InputText(font=("Courier",18))], [sg.VPush()],
-                    [sg.Text('Language',size=(15,1),font=("Courier",18)), sg.InputText(font=("Courier",18))], [sg.VPush()],
-                    [sg.Submit(key="-SUMBIT-",font=("Courier",18))],[sg.VPush()],
-                    [sg.Cancel(button_color="red")]
+                    [sg.Text('Please Enter the following information to add a song to the album',font=my_font)],[sg.VPush()],
+                    [sg.Text('Name',size=(15,1),font=my_font), sg.InputText(font=my_font)], [sg.VPush()],
+                    [sg.Text('Duration(sec)',size=(15,1),font=my_font), sg.InputText(font=my_font)], [sg.VPush()],
+                    [sg.Text('Studio Id',size=(15,1),font=my_font), sg.InputText(font=my_font)], [sg.VPush()],
+                    [sg.Text('Language',size=(15,1),font=my_font), sg.InputText(font=my_font)], [sg.VPush()],
+                    [sg.Submit(key="-SUMBIT-",button_color="green",font=my_font) , sg.VPush(),sg.Cancel(button_color="red")]
                 ]
-    window = sg.Window("Add Single Window", layout, modal=True)
+    window = sg.Window("Add Single Window", layout, font=my_font, size = my_window_size, resizable=True, modal=True)
     event,values = window.read()
 
     if event == "Cancel":
@@ -370,19 +354,17 @@ def song_window(album_name):
     if event ==	"-SUMBIT-":
         adm.add_song(None, album_name, values[1], values[2], values[3], values[0])
         window.close()
-        popup_window()
         song_window(album_name)
         
 
 def year_window():
 
     layout =    [
-                    [sg.Text("Please Enter the following information", font=("Courier",18))],[sg.VPush()],
-                    [sg.Text("Year",size=(15,1),font=("Courier",18)), sg.InputText(font=("Courier",18))], [sg.VPush()],
-                    [sg.Submit(key="-SUMBIT-",font=("Courier",18))],[sg.VPush()],
-                    [sg.Cancel(button_color="red")]
+                    [sg.Text("Please Enter the following information", font=my_font)],[sg.VPush()],
+                    [sg.Text("Year",size=(15,1),font=my_font), sg.InputText(font=my_font)], [sg.VPush()],
+                    [sg.Submit(key="-SUMBIT-",button_color="green",font=my_font) , sg.VPush(),sg.Cancel(button_color="red")]
                 ]
-    window = sg.Window("Year Window", layout, modal=True)
+    window = sg.Window("Year Window", layout, font=my_font, size = my_window_size, resizable=True, modal=True)
     event,values = window.read()
 
     if event == "Cancel":
@@ -394,12 +376,11 @@ def year_window():
 def delete_release_window():
 
     layout =    [
-                    [sg.Text("Please Enter the following information", font=("Courier",18))],[sg.VPush()],
-                    [sg.Text("Release Id",size=(15,1),font=("Courier",18)), sg.InputText(font=("Courier",18))], [sg.VPush()],
-                    [sg.Submit(key="-SUMBIT-",font=("Courier",18))],[sg.VPush()],
-                    [sg.Cancel(button_color="red")]
+                    [sg.Text("Please Enter the following information",font=my_font)],[sg.VPush()],
+                    [sg.Text("Release Id",size=(15,1),font=my_font), sg.InputText(font=my_font)], [sg.VPush()],
+                    [sg.Submit(key="-SUMBIT-",button_color="green",font=my_font) , sg.VPush(),sg.Cancel(button_color="red")]
                 ]
-    window = sg.Window("Delete Window", layout, modal=True)
+    window = sg.Window("Delete Window", layout, font=my_font, size = my_window_size, resizable=True, modal=True)
     event,values = window.read()
 
     if event == "Cancel":
@@ -410,12 +391,11 @@ def delete_release_window():
 def delete_artist_window():
 
     layout =    [
-                    [sg.Text("Please Enter the following information", font=("Courier",18))],[sg.VPush()],
-                    [sg.Text("Artist nickname",size=(15,1),font=("Courier",18)), sg.InputText(font=("Courier",18))], [sg.VPush()],
-                    [sg.Submit(key="-SUMBIT-",font=("Courier",18))],[sg.VPush()],
-                    [sg.Cancel(button_color="red")]
+                    [sg.Text("Please Enter the following information",font=my_font)],[sg.VPush()],
+                    [sg.Text("Artist nickname",size=(15,1),font=my_font), sg.InputText(font=my_font)], [sg.VPush()],
+                    [sg.Submit(key="-SUMBIT-",button_color="green",font=my_font) , sg.VPush(),sg.Cancel(button_color="red")]
                 ]
-    window = sg.Window("Delete Window", layout, modal=True)
+    window = sg.Window("Delete Window", layout, font=my_font, size = my_window_size, resizable=True, modal=True)
     event,values = window.read()
 
     if event == "Cancel":
@@ -423,25 +403,20 @@ def delete_artist_window():
     if	event	==	"-SUMBIT-":
         return values[0]
 
-def print_window(headings, results):
-    
-    headings = headings
-    data = results
+def print_window(headings, data, my_col_size):
 
-    layout = [[sg.Table(data, headings=headings,auto_size_columns=False,col_widths=[20,20], justification='left', key='-TABLE-')],]
-    window = sg.Window("Title", layout, size=(500, 500), finalize=True)
+    layout =    [
+                    [sg.Table(data, headings=headings,auto_size_columns=False,col_widths=my_col_size, justification='left', key='-TABLE-')],
+                    [[sg.Button("Back",button_color="red")]]
+                ]
+    window = sg.Window("Title", layout, font=my_font, size = my_window_size, resizable=True, modal=True)
 
     while True:
         event, values = window.read()
-        if event == sg.WINDOW_CLOSED:
+        if event == sg.WINDOW_CLOSED or event=="Back":
             break
-        print(event, values)
 
     window.close()
-
-def popup_window():
-
-    sg.popup("Your action has been completed")
 
 
 
