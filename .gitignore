@@ -1,7 +1,7 @@
-__pycache__
+__pycache__/
 .DS_Store
-admin/admin_menu
-record_db.db
-record_db.sqbpro
 record-company.sqbpro
+record-company.db
+record-company.db-journal
+
 

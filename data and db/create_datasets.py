@@ -5,8 +5,10 @@ from datetime import datetime, timedelta
 
 # source = '/Users/johnefthymiou/Documents/university/7th senester/database/project/Record_CompanyDB/data and db/artist-song-album.xlsx'
 # source1 = '/Users/johnefthymiou/Documents/university/7th senester/database/project/Record_CompanyDB/data and db/add_data_in_db.sql'
-source = r'C:\Users\Odysseas\Documents\vaseis\data and db\artist-song-album.xlsx'
-source1 = r'C:\Users\Odysseas\Documents\vaseis\data and db\add_data_in_db.sql'
+# source = r'C:\Users\Odysseas\Documents\vaseis\data and db\artist-song-album.xlsx'
+# source1 = r'C:\Users\Odysseas\Documents\vaseis\data and db\add_data_in_db.sql'
+
+source = "data and db/artist-song-album.xlsx"
 start = datetime(2000, 1, 1)
 end = datetime(2022, 1, 1)
 
@@ -216,8 +218,8 @@ def release_data():
                 release_id +=1
             song_id+=1
 
-def read_data_from_sql():
-    with open(source1, 'r') as file:
+def read_data_from_sql(source):
+    with open(source, 'r') as file:
         # Read all the lines
         lines = file.readlines()
         # Print the lines
@@ -227,13 +229,23 @@ def read_data_from_sql():
                 cursor.execute(line)
                 db.commit()
 
+def load_sql_code(source):
+    with open(source, 'r') as file:
+        code = file.read()
+        cursor.executescript(code)
+        db.commit()
+
 def main():
     open_excel_file()
     open_db()
     # create_artist_ids()
 
-    read_data_from_sql()
-    
+    create_db = "data and db/record_company_sqlite_create.sql"
+    add_data = "data and db/add_data_in_db.sql"
+
+    load_sql_code(create_db)
+    load_sql_code(add_data)
+
     artist_data()
     release_data()
     

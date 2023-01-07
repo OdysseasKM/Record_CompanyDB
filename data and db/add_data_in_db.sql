@@ -11,14 +11,14 @@ INSERT into GENRE(g_name, g_id) values ('hip hop',10);
 INSERT into GENRE(g_name, g_id) values ('reggae',11);
 
 
-insert into STUDIO(studio_id,street,number,town,country) values (0,"Korinthou","100","Patras","Greece")
-insert into STUDIO(studio_id,street,number,town,country) values (1,"Korinthou","74","Patras","Greece")
-insert into STUDIO(studio_id,street,number,town,country) values (2,"Amalias","24","Athens","Greece")
-insert into STUDIO(studio_id,street,number,town,country) values (3,"Protagora","13","Volos","Greece")
-insert into STUDIO(studio_id,street,number,town,country) values (4,"Karaiskaki","42","Athens","Greece")
+INSERT into STUDIO(studio_id,street,number,town,country) values (0,"Korinthou","100","Patras","Greece");
+INSERT into STUDIO(studio_id,street,number,town,country) values (1,"Korinthou","74","Patras","Greece");
+INSERT into STUDIO(studio_id,street,number,town,country) values (2,"Amalias","24","Athens","Greece");
+INSERT into STUDIO(studio_id,street,number,town,country) values (3,"Protagora","13","Volos","Greece");
+INSERT into STUDIO(studio_id,street,number,town,country) values (4,"Karaiskaki","42","Athens","Greece");
 
 
-insert into USER (username,password,is_admin) values ("john",1234,true)
-insert into USER (username,password,is_admin) values ("odyddeas",1234,true)
-insert into USER (username,password,is_admin) values ("test",1234,false)
+INSERT into USER (username,password,is_admin) values ("john",1234,true);
+INSERT into USER (username,password,is_admin) values ("odyddeas",1234,true);
+INSERT into USER (username,password,is_admin) values ("test",1234,false);
 
