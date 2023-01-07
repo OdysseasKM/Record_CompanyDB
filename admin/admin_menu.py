@@ -456,7 +456,7 @@ def print_window(headings, data, my_col_size):
 
 
 def main():
-    db = sqlite3.connect('record_db.db')
+    db = sqlite3.connect('record-company.db')
     cursor = db.cursor()
     admin_window()
   
