@@ -88,10 +88,14 @@ def add_rating_for_video(id,stars):
 
 # 1. Τα 10 πιο δημοφιλή βίντεο (βάση views)
 def query1():
-    sql = """select r.release_title, dig.views
-        from release as r, video as v, format as f, digital as dig
-        where r.rel_id = f.rel_id  and r.rel_id = v.video_id  and f.format_id = dig.format_id
-        order by dig.views DESC"""
+    sql = """select r.release_title, ar.nickname, dig.views, Round (avg(rate.stars), 2) as avg_rate
+        from release as r, video as v, format as f, digital as dig, rating as rate, artist as ar
+        where r.rel_id = f.rel_id  and r.rel_id = v.video_id  and f.format_id = dig.format_id AND
+		rate.video_id = r.rel_id and 
+		ar.id = r.artist_id
+		group by v.video_id
+        order by dig.views DESC
+    """
     return(cursor.execute(sql).fetchall())
 
 # 2. Τα 10 πιο δημοφιλή βίντεο συγκεκριμένου genre.

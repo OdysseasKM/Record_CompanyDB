@@ -8,21 +8,21 @@ cursor = db.cursor()
 def find_all(table):
     
     if table == "Bands":
-        sql = """SELECT nickname, origin
+        sql = """sELECT ARTIST.id,nickname, origin,COUNT(INDIVIDUAL.ssn)
         FROM ARTIST JOIN INDIVIDUAL ON ARTIST.id=INDIVIDUAL.artist_id
         GROUP BY ARTIST.id
         HAVING COUNT(INDIVIDUAL.ssn)>1;"""
         return(cursor.execute(sql).fetchall())
 
     if table == "Solo Artists":
-        sql = """SELECT nickname, origin
+        sql = """SELECT ARTIST.id, nickname, origin
         FROM ARTIST JOIN INDIVIDUAL ON ARTIST.id=INDIVIDUAL.artist_id
         GROUP BY ARTIST.id
         HAVING COUNT(INDIVIDUAL.ssn)<2;"""
         return(cursor.execute(sql).fetchall())
 
     elif table == "Studio":
-        sql = """SELECT studio_id, town
+        sql = """SELECT *
         FROM STUDIO;"""
         return(cursor.execute(sql).fetchall())
     
@@ -32,23 +32,49 @@ def find_all(table):
         return(cursor.execute(sql).fetchall())
 
     elif table == "Contributor":
-        sql = """SELECT ssn, first_name, last_name, role
-        FROM CONTRIBUTOR JOIN CONTIBUTS_IN ON ssn=contributor_id;"""
+        sql = """sELECT ssn, first_name, last_name, rel_id,role
+                FROM CONTRIBUTOR JOIN CONTRIBUTES_IN ON ssn=contributor_id;"""
         return(cursor.execute(sql).fetchall())
 
     elif table == "Albums":
-        sql="""SELECT release_title, nickname
-        FROM RELEASE JOIN ARTIST ON artist_id = id JOIN ALBUM ON RELEASE.rel_id=ALBUM.album_id; """
+        sql="""select r.rel_id, r.release_title, a.nickname, round ( avg(rate.stars) ,2 ) as avg_stars
+            from artist as a, release as r, song as s, album as al, RATING as rate
+            where  
+            a.id = r.artist_id and
+            r.rel_id = al.album_id  AND
+			s.album_id = al.album_id and
+            rate.song_id = s.song_id 
+            group by s.album_id
+			 order by avg_stars DESC"""
         return(cursor.execute(sql).fetchall())
 
     elif table == "Singles":
-        sql="""SELECT release_title, nickname
-        FROM RELEASE JOIN ARTIST ON artist_id = id JOIN SONG ON RELEASE.rel_id=SONG.rel_id; """
+        sql="""select s.song_id, s.title, a.nickname, round ( avg(rate.stars) ,2 ) as avg_stars
+            from artist as a, release as r, song as s, album as al, RATING as rate
+            where  
+            a.id = r.artist_id and
+            (s.rel_id = r.rel_id or (s.album_id = al.album_id and r.rel_id = al.album_id)) AND
+            rate.song_id = s.song_id 
+            group by s.song_id
+            order by avg_stars DESC; """
         return(cursor.execute(sql).fetchall())
 
     elif table == "Videos":
-        sql="""SELECT release_title, nickname
-        FROM RELEASE JOIN ARTIST ON artist_id = id JOIN VIDEO ON RELEASE.rel_id=VIDEO.video_id; """
+        sql="""select r.rel_id, r.release_title, ar.nickname, dig.views, Round (avg(rate.stars), 2) as avg_rate
+        from release as r, video as v, format as f, digital as dig, rating as rate, artist as ar
+        where r.rel_id = f.rel_id  and r.rel_id = v.video_id  and f.format_id = dig.format_id AND
+		rate.video_id = r.rel_id and 
+		ar.id = r.artist_id
+		group by v.video_id
+        order by dig.views DESC
+         """
+        return(cursor.execute(sql).fetchall())
+    
+    elif table == "Individual":
+        sql= """select i.ssn, i.first_name, i.last_name, ar.nickname
+        from INDIVIDUAL  as i, artist as ar
+        where ar.id = i.artist_id
+        """
         return(cursor.execute(sql).fetchall())
 
 
@@ -193,28 +219,17 @@ def add_digital(idn):
     VALUES(?, 0);"""
     cursor.execute(sql,(idn,))
 
-def add_contributor(release_name, ssn, fname, lname, role):
+def add_contributor(ssn,rel_id,role):
 
-    sql = """SELECT rel_id
-    FROM RELEASE
-    WHERE RELEASE.release_title= ?;"""
-    idn = cursor.execute(sql, (release_name,)).fetchone()[0]
-
-    sql="""INSERT INTO CONTIBUTS_IN
-    VALUES(?, ?, ?);"""
-    cursor.execute(sql,(ssn, idn, role))
-
-    sql="""SELECT *
-        FROM CONTRIBUTOR
-        WHERE ssn=?;"""
-    cursor.execute(sql,(ssn,))
-    result = cursor.fetchall()
-    if len(result) == 0:
-        sql="""INSERT INTO CONTRIBUTOR
-        VALUES(?, ?, ?);"""
-        cursor.execute(sql,(lname, fname, ssn))
-
+    sql="""INSERT INTO CONTRIBUTES_IN (contributor_id,rel_id,role) VALUES(?, ?, ?);"""
+    cursor.execute(sql,(ssn, int(rel_id), role))
     db.commit()
+
+def add_contributor_as_person(ssn, fname, lname):
+    sql = """INSERT into CONTRIBUTOR (last_name, first_name, ssn) values (?,?,?);"""
+    cursor.execute(sql,(lname,fname,ssn))
+    db.commit()
+    
 
 def add_genre(name):
     
@@ -222,12 +237,12 @@ def add_genre(name):
     FROM GENRE;"""
     max_id=cursor.execute(sql).fetchone()[0]
     max_id += 1
-    print(max_id)
+    
     sql="""INSERT INTO GENRE
     VALUES(?, ?);"""
     cursor.execute(sql,(name, max_id))
     db.commit()
-    print("added")
+    
 
 def add_publish(art_id, rel_id):
 
@@ -266,13 +281,12 @@ def annual_revenue(year):
     FROM VINYL JOIN FORMAT ON VINYL.format_id=FORMAT.format_id JOIN RELEASE ON FORMAT.rel_id=RELEASE.rel_id
     WHERE strftime("%Y", RELEASE.r_date)=?;"""
     vinyl_profit = cursor.execute(sql,(year,)).fetchone()[0]
-    print(vinyl_profit)
 
     sql="""SELECT SUM(CD.cost*CD.sales)
     FROM CD JOIN FORMAT ON CD.format_id=FORMAT.format_id JOIN RELEASE ON FORMAT.rel_id=RELEASE.rel_id
     WHERE strftime("%Y", RELEASE.r_date)=?;"""
     cd_profit = cursor.execute(sql,(year,)).fetchone()[0]
-    print(cd_profit)
+    
 
     total_revenue = int(cd_profit) + int(vinyl_profit)
     return total_revenue
@@ -282,8 +296,7 @@ def artist_profit():
     sql="""SELECT ARTIST.nickname, SUM(VINYL.cost)+SUM(CD.cost) AS ESODA
     FROM ARTIST JOIN RELEASE ON ARTIST.id=RELEASE.artist_id JOIN FORMAT ON RELEASE.rel_id=FORMAT.rel_id JOIN VINYL ON FORMAT.format_id=VINYL.format_id JOIN CD ON FORMAT.format_id=CD.format_id
     GROUP BY ARTIST.nickname
-    ORDER BY ESODA DESC
-    LIMIT 3;"""
+    ORDER BY ESODA DESC"""
     return(cursor.execute(sql).fetchall())
     
 def studios():
@@ -333,4 +346,22 @@ def add_individual(ssn, fname, lname, art_name):
     cursor.execute(sql,(ssn, artist_id, fname, lname))
     db.commit()
 
+def find_artist(name):
+    sql = """
+        select *
+        from ARTIST as a
+        where a.nickname = ?"""
+    cursor.execute(sql,(name,))
+    result = cursor.fetchall()
+    if (len(result)==0):return False
+    return True
 
+def find_contributor(ssn):
+    sql="""select first_name,last_name
+        from CONTRIBUTOR
+        where ssn=?
+    """
+    cursor.execute(sql,(ssn,))
+    results = cursor.fetchall()
+    print(type(results[0]))
+    return results[0][0],results[0][1]

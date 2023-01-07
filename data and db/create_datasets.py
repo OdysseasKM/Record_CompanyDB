@@ -3,11 +3,6 @@ import random
 import sqlite3
 from datetime import datetime, timedelta
 
-# source = '/Users/johnefthymiou/Documents/university/7th senester/database/project/Record_CompanyDB/data and db/artist-song-album.xlsx'
-# source1 = '/Users/johnefthymiou/Documents/university/7th senester/database/project/Record_CompanyDB/data and db/add_data_in_db.sql'
-# source = r'C:\Users\Odysseas\Documents\vaseis\data and db\artist-song-album.xlsx'
-# source1 = r'C:\Users\Odysseas\Documents\vaseis\data and db\add_data_in_db.sql'
-
 source = "data and db/artist-song-album.xlsx"
 start = datetime(2000, 1, 1)
 end = datetime(2022, 1, 1)
@@ -15,7 +10,7 @@ end = datetime(2022, 1, 1)
 def open_excel_file():
     global wb,sheet
     # open files
-    wb = openpyxl.load_workbook(source)
+    wb = openpyxl.load_workbook(source) 
     sheet = wb["Sheet1"]
 
 def open_db():
@@ -61,8 +56,7 @@ def artist_data():
             #print(str(artist_id)+ " "+ nickname+ " "+ country)
             sql = """INSERT INTO ARTIST
                         VALUES(?, ?, ?);"""
-            cursor.execute(sql,(artist_id, nickname, country))
-            db.commit()
+            cursor.execute(sql,(artist_id, nickname, country))   
             ids.append(artist_id)
         exists = False
 
@@ -88,21 +82,18 @@ def add_format(release_id,format_id,vinyl,cd,digital):
         views = random.randint(100,1000000) 
         sql = """INSERT INTO DIGITAL VALUES(?, ?);"""
         cursor.execute(sql,(format_id,views))
-    db.commit()
 
 def add_rating_for_song(song_id):
     for j in range(random.randint(1,5)):
         rate = random.randint(1,5)
         sql = """INSERT INTO RATING (stars,song_id) VALUES(?, ?);"""
         cursor.execute(sql,(rate,song_id))
-        db.commit() 
 
 def add_rating_for_video(video_id):
     for j in range(random.randint(1,5)):
         rate = random.randint(1,5)
         sql = """INSERT INTO RATING (stars,video_id) VALUES(?, ?);"""
         cursor.execute(sql,(rate,video_id))
-        db.commit() 
 
 def release_data():
     song_id=100
@@ -122,8 +113,7 @@ def release_data():
             sql = """INSERT INTO RELEASE
                     VALUES(?, ?, ?, ?, ?);"""
             cursor.execute(sql,(release_id, artist_id, random_date, single_name, genre_id))
-            db.commit()     
-
+            
             # add_single
             duration = random.randint(100,500)
             studio_id = random.randint(0,4)
@@ -132,9 +122,10 @@ def release_data():
             sql = """INSERT INTO SONG (song_id,rel_id,duration,studio_id,lyrics_language,title)
                     VALUES(?, ?, ?, ?, ?, ?);"""
             cursor.execute(sql,(song_id, release_id,duration, studio_id, language, single_name))
-            db.commit()
             add_rating_for_song(song_id)
             add_format(release_id,format_id,True,True,True)
+            add_contributes_in_table_for_song(release_id)
+            if (random.randint(1,4)==1):f_ar = add_feature_in(artist_id,release_id)
             format_id+=1
             release_id +=1
             
@@ -148,15 +139,17 @@ def release_data():
                 sql = """INSERT INTO RELEASE
                     VALUES(?, ?, ?, ?, ?);"""
                 cursor.execute(sql,(release_id, artist_id, random_date, single_name+" (video clip)", genre_id))
-                db.commit() 
 
                 duration = random.randint(100,500)
                 sql = """INSERT INTO VIDEO
                     VALUES(?, ?, ?);"""
                 cursor.execute(sql,(release_id, song_id, duration))
-                db.commit() 
                 add_rating_for_video(release_id)
                 add_format(release_id,format_id,False,False,True)
+                add_contributes_in_table_for_video(release_id)
+                try:
+                    add_feature_in2(f_ar,release_id)
+                except Exception:pass
                 format_id+=1
                 release_id +=1
             song_id+=1
@@ -176,8 +169,10 @@ def release_data():
                 sql = """INSERT INTO ALBUM
                         VALUES(?);"""
                 cursor.execute(sql,(release_id,))
-                db.commit()
                 add_format(release_id,format_id,True,True,True)
+                # feature artists
+                if (random.randint(1,3)==1):f_ar1=add_feature_in(artist_id,release_id)
+                if (random.randint(1,3)==1):f_ar2=add_feature_in(artist_id,release_id)
                 format_id+=1
                 
                 album_id = release_id
@@ -192,7 +187,6 @@ def release_data():
             sql = """INSERT INTO SONG (song_id, album_id, duration,studio_id,lyrics_language,title)
                     VALUES(?, ?, ?, ?, ?, ?);"""
             cursor.execute(sql,(song_id,album_id,duration,studio_id,language,song_title))
-            db.commit()
             add_rating_for_song(song_id)
 
             # video
@@ -205,15 +199,18 @@ def release_data():
                 sql = """INSERT INTO RELEASE
                     VALUES(?, ?, ?, ?, ?);"""
                 cursor.execute(sql,(release_id, artist_id, random_date, song_title+" (video clip)", genre_id))
-                db.commit() 
+                add_contributes_in_table_for_video(release_id)
 
                 duration = random.randint(100,500)
                 sql = """INSERT INTO VIDEO
                     VALUES(?, ?, ?);"""
                 cursor.execute(sql,(release_id, song_id, duration))
-                db.commit() 
                 add_rating_for_video(release_id)
                 add_format(release_id,format_id,False,False,True)
+                try :
+                    if (random.randint(1,2)==1):add_feature_in2(f_ar1,release_id)
+                    if (random.randint(1,2)==1):add_feature_in2(f_ar2,release_id)
+                except Exception:pass
                 format_id+=1
                 release_id +=1
             song_id+=1
@@ -227,13 +224,46 @@ def read_data_from_sql(source):
             if (line=='\n'):continue
             else:
                 cursor.execute(line)
-                db.commit()
 
 def load_sql_code(source):
     with open(source, 'r') as file:
         code = file.read()
         cursor.executescript(code)
-        db.commit()
+
+def add_contributes_in_table_for_song(rel_id):
+    sheet2 = wb["Sheet2"]
+    roles = ["songwritter","music producer","music director","composer"]
+    for role in roles:
+        r_ssn = random.randint(1,29)
+        ssn = sheet2.cell(row=r_ssn, column=1).value
+        sql = """INSERT INTO CONTRIBUTES_IN (contributor_id,rel_id,role) VALUES(?, ?, ?);"""
+        cursor.execute(sql,(ssn, rel_id, role))
+
+def add_contributes_in_table_for_video(rel_id):
+    sheet2 = wb["Sheet2"]
+    roles = ["video producer","director"]
+    for role in roles:
+        r_ssn = random.randint(1,29)
+        ssn = sheet2.cell(row=r_ssn, column=1).value
+        sql = """INSERT INTO CONTRIBUTES_IN (contributor_id,rel_id,role) VALUES(?, ?, ?);"""
+        cursor.execute(sql,(ssn, rel_id, role))
+
+def select_random_artist():
+    return random.randint(100,106)
+
+# random aritst
+def add_feature_in(artist_id,release_id):
+    while (True):
+        feature_ar_id = select_random_artist()
+        if (feature_ar_id!=artist_id):break
+    sql = """INSERT INTO FEATURE_IN VALUES(?, ?);"""
+    cursor.execute(sql,(artist_id, release_id))
+    return feature_ar_id
+
+# specific artist
+def add_feature_in2(f_artist,release_id):
+    sql = """INSERT INTO FEATURE_IN VALUES(?, ?);"""
+    cursor.execute(sql,(f_artist), release_id)
 
 def main():
     open_excel_file()
@@ -250,6 +280,7 @@ def main():
     release_data()
     
     print("your datasets are ready for queries.")
+    db.commit()
     wb.close()
 
 if __name__ == "__main__":main()

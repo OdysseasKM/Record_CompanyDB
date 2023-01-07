@@ -68,10 +68,10 @@ CREATE TABLE INDIVIDUAL (
 DROP TABLE IF EXISTS STUDIO;
 CREATE TABLE STUDIO (
 	studio_id integer NOT NULL,
-	street varchar,
-	number varchar,
-	town varchar,
-	country varchar,
+	street varchar NOT NULL,
+	number varchar NOT NULL,
+	town varchar NOT NULL,
+	country varchar NOT NULL,
 	PRIMARY KEY (studio_id)
 );
 
@@ -97,9 +97,9 @@ CREATE TABLE CONTRIBUTOR (
 	PRIMARY KEY (ssn)
 );
 
-DROP TABLE IF EXISTS CONTIBUTS_IN;
-CREATE TABLE CONTIBUTS_IN (
-	contributor_id integer NOT NULL,
+DROP TABLE IF EXISTS CONTRIBUTES_IN;
+CREATE TABLE CONTRIBUTES_IN (
+	contributor_id varchar NOT NULL,
 	rel_id integer NOT NULL,
 	role varchar NOT NULL,
 

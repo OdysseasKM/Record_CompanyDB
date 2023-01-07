@@ -1,5 +1,5 @@
 import PySimpleGUI as sg
-import user.user_functions_for_gui as uf
+import user_functions_for_gui as uf
 
 
 my_window_size = [800,350] #width, height
@@ -108,8 +108,8 @@ def select_rating():
 
 def d_query1():
     results = uf.query1()
-    headings=['Video', 'Views']
-    col_size=[25,25]
+    headings=['Video', 'Artist','Views','Avg Rating']
+    col_size=[20,10,10,10]
     print_window(headings,results,col_size, "Top Videos.")
 
 def d_query7():
@@ -251,8 +251,8 @@ def main():
     user_window()
   
 
-# if __name__ == '__main__':
-#     main()
+if __name__ == '__main__':
+    main()
 
 
 

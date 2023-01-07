@@ -7,126 +7,190 @@ my_window_size = [800,350] #width, height
 my_font = 'Helvetica 22'
 
 
-def admin_window():
+def admin_window(note):
 
-    add_list = ["Insert", ["Artist", "Release", "Studio", "Format", "Individual"]]
+    add_list = ["Insert", ["Artist", "Release", "Studio", "Format", "Individual","Contributor","Contributor in Release"]]
     delete_list = ["Delete", ["Artist", "Release"]]
     inspect_list = ["Inspect", ["Bands", "Solo Artists", "Studio", "Contributor", "Individual", "Albums", "Singles", "Videos"]]
 
     layout =    [
-                    [sg.Text("Insert  "),sg.ButtonMenu("       ", menu_def=add_list)],
-                    [sg.Text("Delete "),sg.ButtonMenu("       ", menu_def=delete_list)],
-                    [sg.Text("Inspect"),sg.ButtonMenu("       ", menu_def=inspect_list)],
+                    [sg.Text("Insert",size=(8,1)),sg.ButtonMenu("      ",size=(8,1), menu_def=add_list)],
+                    [sg.Text("Delete",size=(8,1)),sg.ButtonMenu("      ", size=(8,1),menu_def=delete_list)],
+                    [sg.Text("Inspect",size=(8,1)),sg.ButtonMenu("     ",size=(8,1), menu_def=inspect_list)],
                     [sg.Button("Annual Revenue")],
                     [sg.Button("Studios With the most recordings")],
                     [sg.Button("Most Profitable Artists")],
+                    [sg.Text(note)],
                     [sg.Cancel(button_color="red")]
                 ]
     window	=	sg.Window("Data	Entry Form", layout, font=my_font,size=my_window_size)
     event, values=window.read()	
     window.close()
+    try:
+
+        if event == "Cancel":
+            window.close()
+        elif event == 0:
+    
+            if values[0] == "Artist":
+                artist_name = add_artist_window()
+                if (artist_name!=False):
+                    try :
+                        ssn, f_name, l_name = individual_details_window()
+                        adm.add_individual(ssn,f_name,l_name,artist_name)
+                        admin_window("Artist added")
+                    except Exception: 
+                        adm.delete_artist(artist_name)
+                        admin_window("Artist did not added")
+                else:admin_window("")
+                
+            elif values[0] == "Release":
+                try:
+                    if (add_release_window()):admin_window("Release added")
+                    else: admin_window("")
+                except:
+                    admin_window("Release did not added")
+
+            elif values[0] == "Studio":
+                try:
+                    if(add_studio_window()):admin_window("Studio added")
+                    else:admin_window("")
+                except Exception:
+                    admin_window("Studio did not added")
+
+            elif values[0] == "Format":
+                try :
+                    if(add_format_window()):admin_window("Format added")
+                    else:admin_window("")
+                except Exception:
+                    admin_window("Something went wrong")
+
+            elif values[0] == "Individual":
+                try :
+                    if(add_individual_window()):admin_window("Individual added")
+                    else:admin_window("")
+                except Exception:
+                    admin_window("Individual did not added.")
+            
+            elif values[0] == "Contributor":
+                try :
+                    if(add_contributor_window()==False):admin_window("Contributor Added")
+                    else:admin_window("")
+                except Exception:
+                    admin_window("Contributor did not added.")
+            
+            elif values[0] == "Contributor in Release":
+                try:
+                    if (add_contributor_in_release()==False):
+                        admin_window("Add in Contributes_In Table.")
+                    else:admin_window("Something went wrong")
+                except Exception:
+                    admin_window("Contributor did not added.")            
+
+        elif event == 1:
+            if values[1] == "Artist":
+                    name = delete_artist_window()
+                    if (name!=False):
+                        adm.delete_artist(name)
+                        admin_window("Artist Deleted")
+                    else: admin_window("")
+        
+
+            elif values[1] == "Release":
+                    idn = delete_release_window()
+                    if (idn!=False):
+                        adm.delete_release(idn)
+                        admin_window("Release Deleted")
+                    else:admin_window("")
+    
+        elif event==2:
+    
+            if values[2] == "Bands":
+                results=adm.find_all("Bands")
+                headings=['Id','Nickname', 'Country','Num of members']
+                print_window(values[2],headings, results, [11,15,12,12])
+                admin_window("")
+
+            if values[2] == "Solo Artists":
+                results=adm.find_all("Solo Artists")
+                headings=['Id','Nickname', 'Country']
+                print_window(values[2],headings, results, [6,22,22])
+                admin_window("")
+
+            elif values[2] == "Studio":
+                results=adm.find_all("Studio")
+                headings=['Studio_id', 'Street', 'Number','Town','Country']
+                print_window(values[2],headings, results, [7,13,7,12,11])
+                admin_window("")
+
+            elif values[2] == "Contributor":
+                results=adm.find_all("Contributor")
+                headings=['Ssn', 'First Name', 'Last Name','In Release','Role',]
+                print_window(values[2],headings, results, [10,10,10,8,12])
+                admin_window("")
+
+            elif values[2] == "Albums":
+                results=adm.find_all("Albums")
+                headings=['Id','Release_title','Artist','Rating']
+                print_window(values[2],headings, results, [5,20,15,10])
+                admin_window("")
+
+            elif values[2] == "Singles":
+                results=adm.find_all("Singles")
+                headings=['Id','Release_title', 'Artist','Rating']
+                print_window(values[2],headings, results, [5,20,15,10])
+                admin_window("")
+
+            elif values[2] == "Videos":
+                results=adm.find_all("Videos")
+                headings=['Id','Release_title','Artist','Views','Rating']
+                print_window(values[2],headings, results, [5,20,10,10,5])
+                admin_window("")
+
+            elif values[2] == "Individual":
+                results=adm.find_all("Individual")
+                headings=['Ssn','First Name', 'Last Name', 'Is in']
+                print_window(values[2],headings, results, [15,10,10,15])
+                admin_window("")
+
+        elif event == 'Annual Revenue':
+            year=year_window()
+            results=adm.annual_revenue(year)
+            print(results)
+            # headings=['revenue']
+            # print_window(headings, results, [25])
+            # admin_window()
+
+        elif event == 'Studios With the most recordings':
+            results=adm.studios()
+            headings=['Studio_id', 'Recordings']
+            print_window(values[2],headings, results, [25,25])
+            admin_window("")
+
+        elif event == 'Most Profitable Artists':
+            results=adm.artist_profit()
+            headings=['Artist', 'Profit']
+            print_window(values[2],headings, results, [25,25])
+            admin_window("")
+
+    except Exception: 
+        admin_window("Something wrong happend")
+        
+def select_release_window():
+    layout =    [
+                    [sg.Text('Please Enter the following information', font=my_font)],[sg.VPush()],
+                    [sg.Text('Artist Nickname',size=(12,1),font=my_font), sg.InputText(font=my_font)], [sg.VPush()],	
+                    [sg.Submit(key="-SUMBIT-",button_color="green",font=my_font),sg.VPush(),sg.Cancel(button_color="red",font=my_font)]
+                ]
+    window = sg.Window("Add Artist Window", layout, font=my_font, size = my_window_size, resizable=True, modal=True)
+    event, values = window.read()
 
     if event == "Cancel":
+        window.close()	
+        return False
+    if	event	==	"-SUMBIT-":
         window.close()
-
-    elif event == 0:
- 
-        if values[0] == "Artist":
-            add_artist_window()
-            admin_window()
-
-        elif values[0] == "Release":
-            add_release_window()
-            admin_window()
-
-        elif values[0] == "Studio":
-            add_studio_window()
-            admin_window()
-
-        elif values[0] == "Format":
-            add_format_window()
-            admin_window()
-
-        elif values[0] == "Individual":
-            add_individual_window()
-            admin_window()
-            
-
-    elif event == 1:
-        if values[1] == "Artist":
-            name = delete_artist_window()
-            adm.delete_artist(name)
-            admin_window()
-
-        elif values[1] == "Release":
-            idn = delete_release_window()
-            adm.delete_release(idn)
-            admin_window()
-
-    elif event==2:
- 
-        if values[2] == "Bands":
-            results=adm.find_all("Artist")
-            headings=['Nickname', 'Country']
-            print_window(headings, results, [25,25])
-            admin_window()
-
-        if values[2] == "Solo Artists":
-            results=adm.find_all("Artist")
-            headings=['Nickname', 'Country']
-            print_window(headings, results, [25,25])
-            admin_window()
-
-        elif values[2] == "Studio":
-            results=adm.find_all("Studio")
-            headings=['Studio_id', 'Town']
-            print_window(headings, results, [25,25])
-            admin_window()
-
-        elif values[2] == "Contributor":
-            results=adm.find_all("Contributor")
-            headings=['Ssn', 'First Name', 'Last Name', 'Role']
-            print_window(headings, results, [10,15,15,10])
-            admin_window()
-
-        elif values[2] == "Albums":
-            results=adm.find_all("Albums")
-            headings=['Release_title', 'Artist']
-            print_window(headings, results, [25,25])
-            admin_window()
-
-        elif values[2] == "Singles":
-            results=adm.find_all("Singles")
-            headings=['Release_title', 'Artist']
-            print_window(headings, results, [25,25])
-            admin_window()
-
-        elif values[2] == "Videos":
-            results=adm.find_all("Videos")
-            headings=['Release_title', 'Artist']
-            print_window(headings, results, [25,25])
-            admin_window()
-
-    elif event == 'Annual Revenue':
-        year=year_window()
-        results=adm.annual_revenue(year)
-        print(results)
-        # headings=['revenue']
-        # print_window(headings, results, [25])
-        # admin_window()
-
-    elif event == 'Studios With the most recordings':
-        results=adm.studios()
-        headings=['Studio_id', 'Recordings']
-        print_window(headings, results, [25,25])
-        admin_window()
-
-    elif event == 'Most Profitable Artists':
-        results=adm.artist_profit()
-        headings=['Artist', 'Profit']
-        print_window(headings, results, [25,25])
-        admin_window()
-        
+        return values[0]
 
 def add_artist_window():
 
@@ -141,9 +205,12 @@ def add_artist_window():
 
     if event == "Cancel":
         window.close()	
+        return False
     if	event	==	"-SUMBIT-":
         adm.add_artist(values[0], values[1])
         window.close()
+    return values[0]
+    
 
 def add_format_window():
 
@@ -188,20 +255,20 @@ def add_studio_window():
 
     if event == "Cancel":
         window.close()
+        return False
     if	event	==	"-SUMBIT-":
         adm.add_studio(values[0], values[1], values[2], values[3])
         
         window.close()
     
 
-def add_contributor_window(release_name):
+def add_contributor_window():
 
     layout =    [
                     [sg.Text('Please Enter the following information',font=my_font)],[sg.VPush()],
                     [sg.Text('Ssn',size=(12,1),font=my_font), sg.InputText(font=my_font)], [sg.VPush()],
                     [sg.Text('First Name',size=(12,1),font=my_font), sg.InputText(font=my_font)], [sg.VPush()],
                     [sg.Text('Last Name',size=(12,1),font=my_font), sg.InputText(font=my_font)], [sg.VPush()],
-                    [sg.Text('Role',size=(12,1),font=my_font), sg.InputText(font=my_font)], [sg.VPush()],
                     [sg.Submit(key="-SUMBIT-",font=my_font,button_color="green"),sg.VPush(),sg.Cancel(button_color="red",font=my_font)]
                 ]
     window = sg.Window("Add Contributor Window", layout, font=my_font, size = my_window_size, resizable=True, modal=True)
@@ -209,11 +276,29 @@ def add_contributor_window(release_name):
 
     if event == "Cancel":
         window.close()
+        return False
     if	event	==	"-SUMBIT-":
-        adm.add_contributor(release_name, values[0], values[1], values[2], values[3])
-        
+        adm.add_contributor_as_person(values[0], values[1], values[2])
         window.close()
-        add_contributor_window(release_name)
+        return True
+
+def add_contributor_in_release():
+    layout =    [
+                    [sg.Text('Please Select Contributor',font=my_font)],[sg.VPush()],
+                    [sg.Text('Release Id',size=(8,1),font=my_font), sg.InputText(font=my_font)], [sg.VPush()],
+                    [sg.Text('Ssn',size=(8,1),font=my_font), sg.InputText(font=my_font)], [sg.VPush()],
+                    [sg.Text('Role',size=(8,1),font=my_font), sg.InputText(font=my_font)], [sg.VPush()],
+                    [sg.Submit(key="-SUMBIT-",font=my_font,button_color="green"),sg.VPush(),sg.Cancel(button_color="red",font=my_font)]
+                ]
+    window = sg.Window("Add Contributor in Release", layout, font=my_font, size = my_window_size, resizable=True, modal=True)
+    event,values = window.read()	
+    window.close()
+
+    if event == "Cancel":
+        return False
+    if	event	==	"-SUMBIT-":
+        adm.add_contributor(values[1],values[0],values[2])
+        return True
 
 def add_individual_window():
 
@@ -227,10 +312,15 @@ def add_individual_window():
     
     if event == "Cancel":
         window.close()	
+        return False
     if	event	==	"-SUMBIT-":
         window.close()
-        values[1], values[2], values[3] = individual_details_window()
-        adm.add_individual(values[1], values[2], values[3], values[0])
+        if (adm.find_artist(values[0])):
+            values[1], values[2], values[3] = individual_details_window()
+            adm.add_individual(values[1], values[2], values[3], values[0])
+        else:
+            admin_window("This artist does not exists")
+        
 
 def individual_details_window():
 
@@ -246,6 +336,7 @@ def individual_details_window():
 
     if event == "Cancel":
         window.close()
+        return False
     if	event	==	"-SUMBIT-":
         window.close()
         return(values[0], values[1], values[2])
@@ -266,8 +357,10 @@ def add_release_window():
 
     window = sg.Window("Add Release Window",layout, font=my_font, size = my_window_size, resizable=True, modal=True)
     event, values = window.read()	
+
     if event == "Cancel":
         window.close()
+        return False
     if	event	==	"-SUMBIT-":
         if values["Album"]==True:
             if values["Vinyl"]==True:
@@ -301,7 +394,7 @@ def add_release_window():
             else:
                 adm.add_release(values[0], values[1], "Single", values[2], duration=values[3], studio_id=values[4], language=values[5])
         window.close()
-        # add_contributor_window(values[1])
+        return True
 
 def duration_window():
 
@@ -315,6 +408,7 @@ def duration_window():
     
     if event == "Cancel":
         window.close()	
+        return False
     if	event	==	"-SUMBIT-":
         window.close()
         return values[0]
@@ -331,6 +425,7 @@ def price_window():
     
     if event == "Cancel":
         window.close()	
+        return False
     if	event	==	"-SUMBIT-":
         window.close()
         return values[0]
@@ -346,7 +441,8 @@ def videoclip_window():
     event,values = window.read()
     
     if event == "Cancel":
-        window.close()	
+        window.close()
+        return False	
     if	event	==	"-SUMBIT-":
         window.close()
         return values[0]
@@ -386,6 +482,7 @@ def song_window(album_name):
 
     if event == "Cancel":
         window.close()
+        return False
     if event ==	"-SUMBIT-":
         adm.add_song(None, album_name, values[1], values[2], values[3], values[0])
         window.close()
@@ -403,7 +500,8 @@ def year_window():
     event,values = window.read()
 
     if event == "Cancel":
-        window.close()	
+        window.close()
+        return False	
     if	event	==	"-SUMBIT-":
         window.close()
         return values[0]
@@ -420,6 +518,7 @@ def delete_release_window():
 
     if event == "Cancel":
         window.close()	
+        return False
     if	event	==	"-SUMBIT-":
         return values[0]
 
@@ -435,16 +534,17 @@ def delete_artist_window():
 
     if event == "Cancel":
         window.close()	
+        return False
     if	event	==	"-SUMBIT-":
         return values[0]
 
-def print_window(headings, data, my_col_size):
+def print_window(title,headings, data, my_col_size):
 
     layout =    [
                     [sg.Table(data, headings=headings,auto_size_columns=False,col_widths=my_col_size, justification='left', key='-TABLE-')],
                     [[sg.Button("Back",button_color="red")]]
                 ]
-    window = sg.Window("Title", layout, font=my_font, size = my_window_size, resizable=True, modal=True)
+    window = sg.Window(title, layout, font=my_font, size = my_window_size, resizable=True, modal=True)
 
     while True:
         event, values = window.read()
@@ -458,7 +558,7 @@ def print_window(headings, data, my_col_size):
 def main():
     db = sqlite3.connect('record-company.db')
     cursor = db.cursor()
-    admin_window()
+    admin_window("")
   
 
 if __name__ == '__main__':
