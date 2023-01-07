@@ -7,9 +7,18 @@ cursor = db.cursor()
 
 def find_all(table):
     
-    if table == "Artist":
+    if table == "Bands":
         sql = """SELECT nickname, origin
-        FROM ARTIST;"""
+        FROM ARTIST JOIN INDIVIDUAL ON ARTIST.id=INDIVIDUAL.artist_id
+        GROUP BY ARTIST.id
+        HAVING COUNT(INDIVIDUAL.ssn)>1;"""
+        return(cursor.execute(sql).fetchall())
+
+    if table == "Solo Artists":
+        sql = """SELECT nickname, origin
+        FROM ARTIST JOIN INDIVIDUAL ON ARTIST.id=INDIVIDUAL.artist_id
+        GROUP BY ARTIST.id
+        HAVING COUNT(INDIVIDUAL.ssn)<2;"""
         return(cursor.execute(sql).fetchall())
 
     elif table == "Studio":
@@ -26,7 +35,23 @@ def find_all(table):
         sql = """SELECT ssn, first_name, last_name, role
         FROM CONTRIBUTOR JOIN CONTIBUTS_IN ON ssn=contributor_id;"""
         return(cursor.execute(sql).fetchall())
-    
+
+    elif table == "Albums":
+        sql="""SELECT release_title, nickname
+        FROM RELEASE JOIN ARTIST ON artist_id = id JOIN ALBUM ON RELEASE.rel_id=ALBUM.album_id; """
+        return(cursor.execute(sql).fetchall())
+
+    elif table == "Singles":
+        sql="""SELECT release_title, nickname
+        FROM RELEASE JOIN ARTIST ON artist_id = id JOIN SONG ON RELEASE.rel_id=SONG.rel_id; """
+        return(cursor.execute(sql).fetchall())
+
+    elif table == "Videos":
+        sql="""SELECT release_title, nickname
+        FROM RELEASE JOIN ARTIST ON artist_id = id JOIN VIDEO ON RELEASE.rel_id=VIDEO.video_id; """
+        return(cursor.execute(sql).fetchall())
+
+
 def add_artist(name, country):
 
     sql="""SELECT MAX(id)
@@ -238,35 +263,37 @@ def check_genre(g_name):
 def annual_revenue(year):
 
     sql="""SELECT SUM(VINYL.cost*VINYL.sales)
-    FROM VINYL JOIN FORMAT ON id=rel_id JOIN RELEASE ON rel_id=release_id
+    FROM VINYL JOIN FORMAT ON VINYL.format_id=FORMAT.format_id JOIN RELEASE ON FORMAT.rel_id=RELEASE.rel_id
     WHERE strftime("%Y", RELEASE.r_date)=?;"""
-    vinyl_profit = cursor.execute(sql,(year,))
+    vinyl_profit = cursor.execute(sql,(year,)).fetchone()[0]
+    print(vinyl_profit)
 
     sql="""SELECT SUM(CD.cost*CD.sales)
-    FROM CD JOIN FORMAT ON id=rel_id JOIN RELEASE ON rel_id=release_id
+    FROM CD JOIN FORMAT ON CD.format_id=FORMAT.format_id JOIN RELEASE ON FORMAT.rel_id=RELEASE.rel_id
     WHERE strftime("%Y", RELEASE.r_date)=?;"""
-    cd_profit = cursor.execute(sql,(year,))
+    cd_profit = cursor.execute(sql,(year,)).fetchone()[0]
+    print(cd_profit)
 
-    total_revenue = cd_profit + vinyl_profit
+    total_revenue = int(cd_profit) + int(vinyl_profit)
     return total_revenue
 
-def artist_profit(name):
+def artist_profit():
 
-    sql="""SELECT SUM(VINYL.cost)+SUM(CD.cost) AS ESODA
-    FROM ARTIST JOIN RELEASE ON ARTIST.id=artist_id JOIN FORMAT ON release_id=rel_id JOIN VINYL ON format_id=VINYL.id JOIN CD ON format_id=CD.id
-    WHERE ARTIST.nickname=?
+    sql="""SELECT ARTIST.nickname, SUM(VINYL.cost)+SUM(CD.cost) AS ESODA
+    FROM ARTIST JOIN RELEASE ON ARTIST.id=RELEASE.artist_id JOIN FORMAT ON RELEASE.rel_id=FORMAT.rel_id JOIN VINYL ON FORMAT.format_id=VINYL.format_id JOIN CD ON FORMAT.format_id=CD.format_id
     GROUP BY ARTIST.nickname
-    ORDER BY ESODA
+    ORDER BY ESODA DESC
     LIMIT 3;"""
-    print(cursor.execute(sql,(name,)))
+    return(cursor.execute(sql).fetchall())
     
 def studios():
     
-    sql="""SELECT STUDIO.id, SUM(SONG.song_id) AS recordings
-    FROM STUDIO JOIN SONG ON id=studio_id
-    GROUP BY STUDIO.id
-    ORDER BY recordings;"""
-    return(cursor.execute(sql))
+    sql="""SELECT STUDIO.studio_id, SUM(SONG.song_id) AS recordings
+    FROM STUDIO JOIN SONG ON STUDIO.studio_id=SONG.studio_id
+    GROUP BY STUDIO.studio_id
+    ORDER BY recordings DESC
+    LIMIT 3;"""
+    return(cursor.execute(sql).fetchall())
 
 def delete_release(idn):
 
@@ -305,9 +332,5 @@ def add_individual(ssn, fname, lname, art_name):
     VALUES(?, ?, ?, ?);"""
     cursor.execute(sql,(ssn, artist_id, fname, lname))
     db.commit()
-
-
-
-
 
 

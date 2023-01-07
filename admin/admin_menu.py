@@ -11,7 +11,7 @@ def admin_window():
 
     add_list = ["Insert", ["Artist", "Release", "Studio", "Format", "Individual"]]
     delete_list = ["Delete", ["Artist", "Release"]]
-    inspect_list = ["Inspect", ["Artist", "Release", "Studio", "Contributor", "Individual"]]
+    inspect_list = ["Inspect", ["Bands", "Solo Artists", "Studio", "Contributor", "Individual", "Albums", "Singles", "Videos"]]
 
     layout =    [
                     [sg.Text("Insert  "),sg.ButtonMenu("       ", menu_def=add_list)],
@@ -19,6 +19,7 @@ def admin_window():
                     [sg.Text("Inspect"),sg.ButtonMenu("       ", menu_def=inspect_list)],
                     [sg.Button("Annual Revenue")],
                     [sg.Button("Studios With the most recordings")],
+                    [sg.Button("Most Profitable Artists")],
                     [sg.Cancel(button_color="red")]
                 ]
     window	=	sg.Window("Data	Entry Form", layout, font=my_font,size=my_window_size)
@@ -49,6 +50,7 @@ def admin_window():
         elif values[0] == "Individual":
             add_individual_window()
             admin_window()
+            
 
     elif event == 1:
         if values[1] == "Artist":
@@ -63,15 +65,15 @@ def admin_window():
 
     elif event==2:
  
-        if values[2] == "Artist":
+        if values[2] == "Bands":
             results=adm.find_all("Artist")
             headings=['Nickname', 'Country']
             print_window(headings, results, [25,25])
             admin_window()
 
-        elif values[2] == "Release":
-            results=adm.find_all("Release")
-            headings=['Release_title', 'Artist']
+        if values[2] == "Solo Artists":
+            results=adm.find_all("Artist")
+            headings=['Nickname', 'Country']
             print_window(headings, results, [25,25])
             admin_window()
 
@@ -87,10 +89,43 @@ def admin_window():
             print_window(headings, results, [10,15,15,10])
             admin_window()
 
-    elif event == 3:
-        year=year_window()
-        adm.annual_revenue(year)
+        elif values[2] == "Albums":
+            results=adm.find_all("Albums")
+            headings=['Release_title', 'Artist']
+            print_window(headings, results, [25,25])
+            admin_window()
 
+        elif values[2] == "Singles":
+            results=adm.find_all("Singles")
+            headings=['Release_title', 'Artist']
+            print_window(headings, results, [25,25])
+            admin_window()
+
+        elif values[2] == "Videos":
+            results=adm.find_all("Videos")
+            headings=['Release_title', 'Artist']
+            print_window(headings, results, [25,25])
+            admin_window()
+
+    elif event == 'Annual Revenue':
+        year=year_window()
+        results=adm.annual_revenue(year)
+        print(results)
+        # headings=['revenue']
+        # print_window(headings, results, [25])
+        # admin_window()
+
+    elif event == 'Studios With the most recordings':
+        results=adm.studios()
+        headings=['Studio_id', 'Recordings']
+        print_window(headings, results, [25,25])
+        admin_window()
+
+    elif event == 'Most Profitable Artists':
+        results=adm.artist_profit()
+        headings=['Artist', 'Profit']
+        print_window(headings, results, [25,25])
+        admin_window()
         
 
 def add_artist_window():
