@@ -3,8 +3,10 @@ import random
 import sqlite3
 from datetime import datetime, timedelta
 
-source = '/Users/johnefthymiou/Documents/university/7th senester/database/project/Record_CompanyDB/data and db/artist-song-album.xlsx'
-source1 = '/Users/johnefthymiou/Documents/university/7th senester/database/project/Record_CompanyDB/data and db/add_data_in_db.sql'
+# source = '/Users/johnefthymiou/Documents/university/7th senester/database/project/Record_CompanyDB/data and db/artist-song-album.xlsx'
+# source1 = '/Users/johnefthymiou/Documents/university/7th senester/database/project/Record_CompanyDB/data and db/add_data_in_db.sql'
+source = r'C:\Users\Odysseas\Documents\vaseis\data and db\artist-song-album.xlsx'
+source1 = r'C:\Users\Odysseas\Documents\vaseis\data and db\add_data_in_db.sql'
 start = datetime(2000, 1, 1)
 end = datetime(2022, 1, 1)
 
