@@ -554,8 +554,8 @@ def main():
     admin_window("")
   
 
-if __name__ == '__main__':
-    main()
+# if __name__ == '__main__':
+#     main()
 
 
 

@@ -19,8 +19,9 @@ INSERT into STUDIO(studio_id,street,number,town,country) values (4,"Karaiskaki",
 
 
 INSERT into USER (username,password,is_admin) values ("john",1234,true);
-INSERT into USER (username,password,is_admin) values ("odyddeas",1234,true);
+INSERT into USER (username,password,is_admin) values ("odysseas",1234,true);
 INSERT into USER (username,password,is_admin) values ("test",1234,false);
+INSERT into USER (username,password,is_admin) values ("admin",1234,true);
 
 INSERT into INDIVIDUAL (ssn, artist_id, first_name, last_name) values ('221-65-2106', 100, 'Florencia', 'Tuffley');
 INSERT into INDIVIDUAL (ssn, artist_id, first_name, last_name) values ('558-21-5235', 101, 'Dorolisa', 'Arpur');

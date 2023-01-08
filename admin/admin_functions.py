@@ -109,8 +109,9 @@ def add_release(art_name, name, option, genre, language="", Format="", duration=
     WHERE ARTIST.nickname= ?;"""
     artist_id = cursor.execute(sql, (art_name,)).fetchone()[0]
 
-    if check_genre(genre)==0:
-        add_genre(genre)
+    if (genre!=""):
+        if check_genre(genre)==0:
+            add_genre(genre)
 
     sql = """SELECT g_id
     FROM GENRE

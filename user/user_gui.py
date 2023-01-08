@@ -33,7 +33,7 @@ def select_genre_window():
     button2 = sg.Button("Show",button_color="green")
     text1 = sg.Text("Please select a genre.")
     button3 = sg.Cancel("Exit",button_color="red")
-
+    
     layout = [
         [text1,button1],
         [button2,button3]
@@ -195,7 +195,6 @@ def user_window():
     query4 = "Select a song and get back relative songs to this song"
     text1 = sg.Text("Rate a:")
     query5 = ["Rate a:",["song","video"]]
-
 
     layout =    [
                     [sg.Button(query3)],
