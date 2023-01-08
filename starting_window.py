@@ -6,7 +6,7 @@ sys.path.insert(0, '../user')
 import admin.admin_menu as admin_gui
 import user.user_gui as user_gui
 
-my_window_size = [800,350] #width, height
+
 my_font = 'Helvetica 22'
 
 def login_check(username, password):
@@ -52,7 +52,8 @@ def login_window(note):
                     [sg.Text("\n"+note+"\n")],
                     [sg.Button("SUBMIT",button_color="green"),sg.Button("Exit",button_color="red")],    
                 ]
-    window = sg.Window("Login Window", layout,font=my_font,size = my_window_size,resizable = True,finalize=True)
+    window = sg.Window("Login Window", layout,font=my_font,resizable = True,finalize=True)
+    window.finalize()
     event,values = window.read()
     window.close()
     if event == "Exit" or event == sg.WINDOW_CLOSED:
@@ -77,8 +78,8 @@ def register_window(note):
                     [sg.Text("\n"+note+"\n")],
                     [sg.Button("SUBMIT",button_color="green"),sg.Button("Exit",button_color="red")]
                 ]
-    window = sg.Window("Register Window", layout,font=my_font,size = my_window_size,resizable = True,finalize=True)
-
+    window = sg.Window("Register Window", layout,font=my_font,resizable = True,finalize=True)
+    window.finalize()
     event,values = window.read()
     window.close()
 
@@ -100,7 +101,8 @@ def first_window(note):
     ]
 
     # Create the login/register window
-    window = sg.Window('DBRC', layout, font = my_font, size = my_window_size, resizable=True)
+    window = sg.Window('DBRC', layout, font = my_font , resizable=True)
+    window.finalize()
     event, values = window.Read()
     window.close()
 

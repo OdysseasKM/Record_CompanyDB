@@ -2,7 +2,6 @@ import PySimpleGUI as sg
 import admin.admin_functions as adm
 
 
-my_window_size = [800,350] #width, height
 my_font = 'Helvetica 22'
 
 def admin_window(note):
@@ -21,7 +20,8 @@ def admin_window(note):
                     [sg.Text(note)],
                     [sg.Cancel(button_color="red")]
                 ]
-    window	=	sg.Window("Data	Entry Form", layout, font=my_font,size=my_window_size)
+    window	=	sg.Window("Data	Entry Form", layout, font=my_font)
+    window.finalize()
     event, values=window.read()	
     window.close()
     try:
@@ -175,7 +175,8 @@ def select_release_window():
                     [sg.Text('Artist Nickname',size=(12,1),font=my_font), sg.InputText(font=my_font)], [sg.VPush()],	
                     [sg.Submit(key="-SUMBIT-",button_color="green",font=my_font),sg.VPush(),sg.Cancel(button_color="red",font=my_font)]
                 ]
-    window = sg.Window("Add Artist Window", layout, font=my_font, size = my_window_size, resizable=True, modal=True)
+    window = sg.Window("Add Artist Window", layout, font=my_font, resizable=True, modal=True)
+    window.finalize()
     event, values = window.read()
 
     if event == "Cancel":
@@ -193,7 +194,8 @@ def add_artist_window():
                     [sg.Text('Artist Country',size=(12,1),font=my_font), sg.InputText(font=my_font)], [sg.VPush()],
                     [sg.Submit(key="-SUMBIT-",button_color="green",font=my_font),sg.VPush(),sg.Cancel(button_color="red",font=my_font)]
                 ]
-    window = sg.Window("Add Artist Window", layout, font=my_font, size = my_window_size, resizable=True, modal=True)
+    window = sg.Window("Add Artist Window", layout, font=my_font, resizable=True, modal=True)
+    window.finalize()
     event, values = window.read()
 
     if event == "Cancel":
@@ -218,7 +220,8 @@ def add_format_window():
                     [sg.Submit(key="-SUMBIT-",button_color="green",font=my_font) , sg.VPush(),sg.Cancel(button_color="red",font=my_font)]
                 ]
 
-    window = sg.Window("Add Format Window", layout, font=my_font, size = my_window_size, resizable=True, modal=True)
+    window = sg.Window("Add Format Window", layout, font=my_font, resizable=True, modal=True)
+    window.finalize()
     event, values = window.read()
 
     if event == "Cancel":
@@ -247,7 +250,8 @@ def add_studio_window():
                     [sg.Text('Country',size=(12,1),font=my_font), sg.InputText(font=my_font)], [sg.VPush()],
                     [sg.Submit(key="-SUMBIT-",button_color="green",font=my_font),sg.VPush(),sg.Cancel(button_color="red",font=my_font)]
                 ]
-    window = sg.Window("Add Artist Window", layout, font=my_font, size = my_window_size, resizable=True, modal=True)
+    window = sg.Window("Add Artist Window", layout, font=my_font, resizable=True, modal=True)
+    window.finalize()
     event,values = window.read()	
 
     if event == "Cancel":
@@ -268,7 +272,8 @@ def add_contributor_window():
                     [sg.Text('Last Name',size=(12,1),font=my_font), sg.InputText(font=my_font)], [sg.VPush()],
                     [sg.Submit(key="-SUMBIT-",font=my_font,button_color="green"),sg.VPush(),sg.Cancel(button_color="red",font=my_font)]
                 ]
-    window = sg.Window("Add Contributor Window", layout, font=my_font, size = my_window_size, resizable=True, modal=True)
+    window = sg.Window("Add Contributor Window", layout, font=my_font, resizable=True, modal=True)
+    window.finalize()
     event,values = window.read()	
 
     if event == "Cancel":
@@ -287,7 +292,8 @@ def add_contributor_in_release():
                     [sg.Text('Role',size=(8,1),font=my_font), sg.InputText(font=my_font)], [sg.VPush()],
                     [sg.Submit(key="-SUMBIT-",font=my_font,button_color="green"),sg.VPush(),sg.Cancel(button_color="red",font=my_font)]
                 ]
-    window = sg.Window("Add Contributor in Release", layout, font=my_font, size = my_window_size, resizable=True, modal=True)
+    window = sg.Window("Add Contributor in Release", layout, font=my_font, resizable=True, modal=True)
+    window.finalize()
     event,values = window.read()	
     window.close()
 
@@ -304,7 +310,8 @@ def add_individual_window():
                     [sg.Text("Artist Nickname",font=my_font), sg.InputText(font=my_font)], [sg.VPush()],
                     [sg.Submit(key="-SUMBIT-",font=my_font,button_color="green"),sg.VPush(),sg.Cancel(button_color="red",font=my_font)]
                 ]
-    window = sg.Window("Add Individual Window", layout, font=my_font, size = my_window_size, resizable=True, modal=True)
+    window = sg.Window("Add Individual Window", layout, font=my_font, resizable=True, modal=True)
+    window.finalize()
     event,values = window.read()
     window.close()
 
@@ -327,7 +334,8 @@ def individual_details_window():
                     [sg.Text('Last Name',size=(10,1),font=my_font), sg.InputText(font=my_font)], [sg.VPush()],
                     [sg.Submit(key="-SUMBIT-",button_color="green",font=my_font) , sg.VPush(),sg.Cancel(button_color="red")]
                 ]
-    window = sg.Window("Add Individual Window", layout, font=my_font, size = my_window_size, resizable=True, modal=True)
+    window = sg.Window("Add Individual Window", layout, font=my_font, resizable=True, modal=True)
+    window.finalize()
     event,values = window.read()	
 
     if event == "Cancel":
@@ -351,7 +359,8 @@ def add_release_window():
                     [sg.Submit(key="-SUMBIT-",font=my_font,button_color="green"),sg.VPush(),sg.Cancel(button_color="red",font=my_font)]
                 ]
 
-    window = sg.Window("Add Release Window",layout, font=my_font, size = my_window_size, resizable=True, modal=True)
+    window = sg.Window("Add Release Window",layout, font=my_font, resizable=True, modal=True)
+    window.finalize()
     event, values = window.read()	
     window.close()
     if event == "Cancel":
@@ -397,7 +406,8 @@ def duration_window():
                     [sg.Text("Duration(sec)",size=(15,1),font=my_font), sg.InputText(font=my_font)], [sg.VPush()],
                     [sg.Submit(key="-SUMBIT-",button_color="green",font=my_font) , sg.VPush(),sg.Cancel(button_color="red")]
                 ]
-    window = sg.Window("Duration Window",layout, font=my_font, size = my_window_size, resizable=True, modal=True)
+    window = sg.Window("Duration Window",layout, font=my_font, resizable=True, modal=True)
+    window.finalize()
     event,values = window.read()
     
     if event == "Cancel":
@@ -414,7 +424,8 @@ def price_window():
                     [sg.Text("Format Price",size=(15,1),font=my_font), sg.InputText(font=my_font)], [sg.VPush()],
                     [sg.Submit(key="-SUMBIT-",button_color="green",font=my_font), sg.VPush(),sg.Cancel(button_color="red")]
                 ]
-    window = sg.Window("Price Window", layout, font=my_font, size = my_window_size, resizable=True, modal=True)
+    window = sg.Window("Price Window", layout, font=my_font , resizable=True, modal=True)
+    window.finalize()
     event,values = window.read()
     
     if event == "Cancel":
@@ -431,7 +442,8 @@ def videoclip_window():
                     [sg.Text("song name",size=(15,1),font=my_font), sg.InputText(font=my_font)], [sg.VPush()],
                     [sg.Submit(key="-SUMBIT-",button_color="green",font=my_font), sg.VPush(),sg.Cancel(button_color="red")]
                 ]
-    window = sg.Window("Videoclip Window", layout, font=my_font, size = my_window_size, resizable=True, modal=True)
+    window = sg.Window("Videoclip Window", layout, font=my_font , resizable=True, modal=True)
+    window.finalize()
     event,values = window.read()
     
     if event == "Cancel":
@@ -451,7 +463,8 @@ def single_window():
                     [sg.Text('Language',size=(15,1),font=my_font), sg.InputText(font=my_font)], [sg.VPush()],
                     [sg.Submit(key="-SUMBIT-",button_color="green",font=my_font) , sg.VPush(),sg.Cancel(button_color="red")]
                 ]
-    window = sg.Window("Add Single Window", layout, font=my_font, size = my_window_size, resizable=True, modal=True)
+    window = sg.Window("Add Single Window", layout, font=my_font, resizable=True, modal=True)
+    window.finalize()
     event,values = window.read()
 
     if event == "Cancel":
@@ -471,7 +484,8 @@ def song_window(album_name):
                     [sg.Text('Language',size=(15,1),font=my_font), sg.InputText(font=my_font)], [sg.VPush()],
                     [sg.Submit(key="-SUMBIT-",button_color="green",font=my_font) , sg.VPush(),sg.Cancel(button_color="red")]
                 ]
-    window = sg.Window("Add Single Window", layout, font=my_font, size = my_window_size, resizable=True, modal=True)
+    window = sg.Window("Add Single Window", layout, font=my_font, resizable=True, modal=True)
+    window.finalize()
     event,values = window.read()
 
     if event == "Cancel":
@@ -490,7 +504,8 @@ def year_window():
                     [sg.Text("Year",size=(15,1),font=my_font), sg.InputText(font=my_font)], [sg.VPush()],
                     [sg.Submit(key="-SUMBIT-",button_color="green",font=my_font) , sg.VPush(),sg.Cancel(button_color="red")]
                 ]
-    window = sg.Window("Year Window", layout, font=my_font, size = my_window_size, resizable=True, modal=True)
+    window = sg.Window("Year Window", layout, font=my_font , resizable=True, modal=True)
+    window.finalize()
     event,values = window.read()
 
     if event == "Cancel":
@@ -507,7 +522,8 @@ def delete_release_window():
                     [sg.Text("Release Id",size=(15,1),font=my_font), sg.InputText(font=my_font)], [sg.VPush()],
                     [sg.Submit(key="-SUMBIT-",button_color="green",font=my_font) , sg.VPush(),sg.Cancel(button_color="red")]
                 ]
-    window = sg.Window("Delete Window", layout, font=my_font, size = my_window_size, resizable=True, modal=True)
+    window = sg.Window("Delete Window", layout, font=my_font, resizable=True, modal=True)
+    window.finalize()
     event,values = window.read()
 
     if event == "Cancel":
@@ -523,7 +539,8 @@ def delete_artist_window():
                     [sg.Text("Artist nickname",size=(15,1),font=my_font), sg.InputText(font=my_font)], [sg.VPush()],
                     [sg.Submit(key="-SUMBIT-",button_color="green",font=my_font) , sg.VPush(),sg.Cancel(button_color="red")]
                 ]
-    window = sg.Window("Delete Window", layout, font=my_font, size = my_window_size, resizable=True, modal=True)
+    window = sg.Window("Delete Window", layout, font=my_font, resizable=True, modal=True)
+    window.finalize()
     event,values = window.read()
 
     if event == "Cancel":
@@ -538,8 +555,8 @@ def print_window(title,headings, data, my_col_size):
                     [sg.Table(data, headings=headings,auto_size_columns=False,col_widths=my_col_size, justification='left', key='-TABLE-')],
                     [[sg.Button("Back",button_color="red")]]
                 ]
-    window = sg.Window(title, layout, font=my_font, size = my_window_size, resizable=True, modal=True)
-
+    window = sg.Window(title, layout, font=my_font, resizable=True, modal=True)
+    window.finalize()
     while True:
         event, values = window.read()
         if event == sg.WINDOW_CLOSED or event=="Back":

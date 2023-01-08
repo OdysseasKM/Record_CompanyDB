@@ -1,8 +1,6 @@
 import PySimpleGUI as sg
 import user.user_functions_for_gui as uf
 
-
-my_window_size = [800,350] #width, height
 my_font = 'Helvetica 22'
 
 def print_window(headings,results,my_col_size,title):
@@ -18,8 +16,8 @@ def print_window(headings,results,my_col_size,title):
             key = '-TABLE-')],
         [sg.Cancel("Exit",button_color="red")]
     ]
-    window = sg.Window(title,layout,font=my_font,size = my_window_size,resizable = True,finalize=True)
-
+    window = sg.Window(title,layout,font=my_font,resizable = True,finalize=True)
+    window.finalize()
     while True:
         event, values = window.read()
         if event == "Exit" or event == sg.WINDOW_CLOSED:
@@ -39,7 +37,8 @@ def select_genre_window():
         [button2,button3]
     ]
 
-    window = sg.Window("Select Genre", layout, font=my_font, size = my_window_size,resizable = True,finalize=True)
+    window = sg.Window("Select Genre", layout, font=my_font,resizable = True,finalize=True)
+    window.finalize()
     genre = ""
     while True:
         event, values = window.read()
@@ -62,8 +61,9 @@ def select_rel(text1,title,note):
         [sg.Text(note)]
     ]
 
-    window = sg.Window(title,layout, font=my_font, size = my_window_size,resizable = True,finalize=True)
-    
+    window = sg.Window(title,layout, font=my_font,resizable = True,finalize=True)
+    window.finalize()
+
     while True:
         event, values = window.read()
         if event == "OK":
@@ -91,7 +91,8 @@ def select_rating():
         [button3]
     ]
 
-    window = sg.Window("Select Rate", layout, font=my_font, size = my_window_size,resizable = True,finalize=True)
+    window = sg.Window("Select Rate", layout, font=my_font,resizable = True,finalize=True)
+    window.finalize()
     rate = ""
     while True:
         event, values = window.read()
@@ -207,7 +208,8 @@ def user_window():
                     [sg.Cancel(button_color="red")]
                 ]
 
-    window = sg.Window("Starting Window", layout, font=my_font, size = my_window_size, resizable=True)
+    window = sg.Window("Starting Window", layout, font=my_font, resizable=True)
+    window.finalize()
     try:
         while True:
             event, values = window.read()
