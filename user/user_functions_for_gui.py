@@ -86,7 +86,7 @@ def add_rating_for_video(id,stars):
     sql = """insert into rating (stars, video_id) values (?,?);"""
     cursor.execute(sql,(stars,id))
 
-# 1. Τα 10 πιο δημοφιλή βίντεο (βάση views)
+# 1. Τα πιο δημοφιλή βίντεο (βάση views)
 def query1():
     sql = """SELECT r.release_title, ar.nickname, dig.views, ROUND(AVG(rate.stars), 2) AS avg_rate
             FROM release AS r
@@ -96,11 +96,12 @@ def query1():
             JOIN video AS v ON r.rel_id = v.video_id
             LEFT JOIN rating AS rate ON rate.video_id = r.rel_id
             GROUP BY v.video_id
-            ORDER BY dig.views DESC;
+            ORDER BY dig.views DESC
+            LIMIT 10;
     """
     return(cursor.execute(sql).fetchall())
 
-# 2. Τα 10 πιο δημοφιλή βίντεο συγκεκριμένου genre.
+# 2. Τα πιο δημοφιλή βίντεο συγκεκριμένου genre.
 def query2(genre):
     sql = """select r.release_title , dig.views
             from release as r join genre as g on r.genre_id=g.g_id, video as v, format as f, digital as dig
@@ -132,12 +133,13 @@ def query3():
                 ((r.rel_id = al.album_id and s.album_id = al.album_id) or (r.rel_id = s.rel_id) ) AND
                 s.song_id = rate.song_id 
                 group by artist_id
-                order by avg_rate DESC"""
+                order by avg_rate DESC
+                LIMIT 10"""
     cursor.execute(sql)
     result = cursor.fetchall()
     return result
 
-# 10. Επιλέγοντας ένα τραγούδι ή ενα άλμπουμ να εμφανίζονται στον χρήστη 5 προτεινόμενα τραγούδια η άλμπουμ (βασισμένα στο είδος και στο rating) 
+# 10. Επιλέγοντας ένα τραγούδι ή ενα άλμπουμ να εμφανίζονται στον χρήστη προτεινόμενα τραγούδια η άλμπουμ (βασισμένα στο είδος και στο rating) 
 def query4(song_id):
     if (song_id!=-1):
         # find genre of song
@@ -171,7 +173,8 @@ def query5():
             LEFT JOIN album AS al ON s.album_id = al.album_id
             LEFT JOIN RATING AS rate ON rate.song_id = s.song_id
             GROUP BY s.song_id
-            ORDER BY avg_stars DESC;"""
+            ORDER BY avg_stars DESC
+            LIMIT 10"""
     cursor.execute(sql)
     result = cursor.fetchall()
     return result
@@ -186,7 +189,8 @@ def query6():
 			s.album_id = al.album_id and
             rate.song_id = s.song_id 
             group by s.album_id
-			 order by avg_stars DESC"""
+			order by avg_stars DESC
+            LIMIT 10"""
     cursor.execute(sql)
     result = cursor.fetchall()
     return result
