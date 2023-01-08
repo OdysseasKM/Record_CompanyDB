@@ -1,5 +1,5 @@
 import PySimpleGUI as sg
-import user_functions_for_gui as uf
+import user.user_functions_for_gui as uf
 
 
 my_window_size = [800,350] #width, height
@@ -114,14 +114,14 @@ def d_query1():
 
 def d_query7():
     results = uf.query5()
-    headings=['Song', 'Artist', 'Avg Rating']
-    col_size=[20,15,15]
+    headings=['Song', 'Artist', 'Avg Rating', 'Is in Album']
+    col_size=[17,13,10,10]
     print_window(headings,results,col_size, "Top Songs.")
 
 def d_query8():
     results = uf.query6()
-    headings=['Album', 'Artist', 'Avg Rating']
-    col_size=[20,15,15]
+    headings=['Album', 'Artist', 'Avg Rating','Num of Songs']
+    col_size=[17,13,10,10]
     print_window(headings,results,col_size, "Top Albums.")
 
 def d_query2():
@@ -209,50 +209,54 @@ def user_window():
                 ]
 
     window = sg.Window("Starting Window", layout, font=my_font, size = my_window_size, resizable=True)
+    try:
+        while True:
+            event, values = window.read()
+            if event == "Cancel":
+                break
+            elif event == query1:
+                window.hide()
+                d_query1()
+                window.un_hide()
+            elif event == query7:
+                window.hide()
+                d_query7()
+                window.un_hide()
+            elif event == query8:
+                window.hide()
+                d_query8()
+                window.un_hide()
+            elif event == query2:
+                window.hide()
+                d_query2()
+                window.un_hide()
+            elif event == query3:
+                window.hide()
+                d_query3()
+                window.un_hide()
+            elif event == query4:
+                window.hide()
+                d_query4("")
+                window.un_hide()
+            elif event == 0:
+                window.hide()
+                if values[0] == "song": d_query5("")
+                elif values[0] == "video": d_query6("") 
+                window.un_hide()
+        uf.close_db()
+        window.close()
 
-    while True:
-        event, values = window.read()
-        if event == "Cancel":
-            break
-        elif event == query1:
-            window.hide()
-            d_query1()
-            window.un_hide()
-        elif event == query7:
-            window.hide()
-            d_query7()
-            window.un_hide()
-        elif event == query8:
-            window.hide()
-            d_query8()
-            window.un_hide()
-        elif event == query2:
-            window.hide()
-            d_query2()
-            window.un_hide()
-        elif event == query3:
-            window.hide()
-            d_query3()
-            window.un_hide()
-        elif event == query4:
-            window.hide()
-            d_query4("")
-            window.un_hide()
-        elif event == 0:
-            window.hide()
-            if values[0] == "song": d_query5("")
-            elif values[0] == "video": d_query6("") 
-            window.un_hide()
-    uf.close_db()
-    window.close()
+    except Exception:
+        window.close()
+        user_window()
 
 def main():
     uf.open_db()
-    user_window()
+    user_window() 
   
 
-if __name__ == '__main__':
-    main()
+# if __name__ == '__main__':
+#     main()
 
 
 

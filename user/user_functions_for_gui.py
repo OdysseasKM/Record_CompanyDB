@@ -88,13 +88,15 @@ def add_rating_for_video(id,stars):
 
 # 1. Τα 10 πιο δημοφιλή βίντεο (βάση views)
 def query1():
-    sql = """select r.release_title, ar.nickname, dig.views, Round (avg(rate.stars), 2) as avg_rate
-        from release as r, video as v, format as f, digital as dig, rating as rate, artist as ar
-        where r.rel_id = f.rel_id  and r.rel_id = v.video_id  and f.format_id = dig.format_id AND
-		rate.video_id = r.rel_id and 
-		ar.id = r.artist_id
-		group by v.video_id
-        order by dig.views DESC
+    sql = """SELECT r.release_title, ar.nickname, dig.views, ROUND(AVG(rate.stars), 2) AS avg_rate
+            FROM release AS r
+            JOIN artist AS ar ON ar.id = r.artist_id
+            JOIN format AS f ON r.rel_id = f.rel_id
+            JOIN digital AS dig ON f.format_id = dig.format_id
+            JOIN video AS v ON r.rel_id = v.video_id
+            LEFT JOIN rating AS rate ON rate.video_id = r.rel_id
+            GROUP BY v.video_id
+            ORDER BY dig.views DESC;
     """
     return(cursor.execute(sql).fetchall())
 
@@ -160,21 +162,23 @@ def query4(song_id):
         result = cursor.fetchall()
         return result
 
+# SONGS
 def query5():
-    sql = """select s.title, a.nickname, round ( avg(rate.stars) ,2 ) as avg_stars
-            from artist as a, release as r, song as s, album as al, RATING as rate
-            where  
-            a.id = r.artist_id and
-            (s.rel_id = r.rel_id or (s.album_id = al.album_id and r.rel_id = al.album_id)) AND
-            rate.song_id = s.song_id 
-            group by s.song_id
-            order by avg_stars DESC;"""
+    sql = """SELECT s.title, a.nickname, ROUND(AVG(rate.stars), 2) AS avg_stars, s.album_id
+            FROM artist AS a
+            JOIN release AS r ON a.id = r.artist_id
+            JOIN song AS s ON s.rel_id = r.rel_id OR (s.album_id = al.album_id AND r.rel_id = al.album_id)
+            LEFT JOIN album AS al ON s.album_id = al.album_id
+            LEFT JOIN RATING AS rate ON rate.song_id = s.song_id
+            GROUP BY s.song_id
+            ORDER BY avg_stars DESC;"""
     cursor.execute(sql)
     result = cursor.fetchall()
     return result
 
+# ALBUMS 
 def query6():
-    sql = """select r.release_title, a.nickname, round ( avg(rate.stars) ,2 ) as avg_stars
+    sql = """select r.release_title, a.nickname, round ( avg(rate.stars) ,2 ) as avg_stars, COUNT(DISTINCT s.song_id)
             from artist as a, release as r, song as s, album as al, RATING as rate
             where  
             a.id = r.artist_id and
@@ -182,7 +186,7 @@ def query6():
 			s.album_id = al.album_id and
             rate.song_id = s.song_id 
             group by s.album_id
-            order by avg_stars DESC;"""
+			 order by avg_stars DESC"""
     cursor.execute(sql)
     result = cursor.fetchall()
     return result
