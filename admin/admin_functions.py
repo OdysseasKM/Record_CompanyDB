@@ -278,14 +278,15 @@ def check_genre(g_name):
     result = cursor.fetchall()
     return (len(result))
 
-def annual_revenue():
-    sql = """SELECT strftime("%Y",r.r_date) as year, round(SUM(v.cost*v.sales + c.cost*c.sales),2) as profit
+def sales():
+    sql = """SELECT r.release_title, SUM(v.sales + c.sales) as sales
     FROM vinyl as v, cd as c, format as f, release as r
-	where r.rel_id = f.rel_id AND
-	v.format_id = f.format_id AND
-	c.format_id = f.format_id 
-    group by year
-	order by profit DESC;"""
+    where r.rel_id = f.rel_id AND
+    v.format_id = f.format_id AND
+    c.format_id = f.format_id 
+    group by r.rel_id
+    order by sales DESC
+    limit 10;"""
     return(cursor.execute(sql).fetchall())
 
 def artist_profit():

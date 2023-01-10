@@ -14,7 +14,7 @@ def admin_window(note):
                     [sg.Text("Insert",size=(8,1)),sg.ButtonMenu("      ",size=(8,1), menu_def=add_list)],
                     [sg.Text("Delete",size=(8,1)),sg.ButtonMenu("      ", size=(8,1),menu_def=delete_list)],
                     [sg.Text("Inspect",size=(8,1)),sg.ButtonMenu("     ",size=(8,1), menu_def=inspect_list)],
-                    [sg.Button("Annual Revenue")],
+                    [sg.Button("Releases with most sales")],
                     [sg.Button("Studios With the most recordings")],
                     [sg.Button("Most Profitable Artists")],
                     [sg.Text(note)],
@@ -148,10 +148,10 @@ def admin_window(note):
                 print_window(values[2],headings, results, [15,10,10,15])
                 admin_window("")
 
-        elif event == 'Annual Revenue':
-            results=adm.annual_revenue()
-            headings=['Year','Revenue ($)']
-            print_window(values[2],headings, results, [20,30])
+        elif event == 'Releases with most sales':
+            results=adm.sales()
+            headings=['Release','Sales']
+            print_window(values[2],headings, results, [25,25])
             admin_window("")
 
         elif event == 'Studios With the most recordings':
